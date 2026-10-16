@@ -1,0 +1,994 @@
+{
+ "_notice": "SEED DATA, NOT OFFICIAL. Distances and times are illustrative; landmark notes marked sample are placeholders. Items marked VERIFY in config.json need checking against current sources.",
+ "hubs": [
+  {
+   "id": "UTT",
+   "name": "Uttara",
+   "bn": "উত্তরা",
+   "x": 560,
+   "y": 40,
+   "lat": 23.8759,
+   "lng": 90.3795,
+   "coordsApprox": true,
+   "zone": "north",
+   "aliases": [
+    "uttara",
+    "uttora",
+    "উত্তরা"
+   ],
+   "landmarks": [
+    {
+     "note_en": "Sample note: ask for the Uttara main stop; buses stop on the main road.",
+     "note_bn_banglish": "Sample: Uttara main stop e namben; bus main road e thame.",
+     "sample": true
+    }
+   ]
+  },
+  {
+   "id": "MIR",
+   "name": "Mirpur",
+   "bn": "মিরপুর",
+   "x": 200,
+   "y": 120,
+   "lat": 23.8069,
+   "lng": 90.3687,
+   "coordsApprox": true,
+   "zone": "northwest",
+   "aliases": [
+    "mirpur",
+    "mirpur 10",
+    "mirpur10",
+    "mirpur-10",
+    "মিরপুর",
+    "মিরপুর ১০"
+   ],
+   "landmarks": [
+    {
+     "note_en": "Sample note: ask for the Mirpur main stop; buses stop on the main road.",
+     "note_bn_banglish": "Sample: Mirpur main stop e namben; bus main road e thame.",
+     "sample": true
+    }
+   ]
+  },
+  {
+   "id": "MOH",
+   "name": "Mohakhali",
+   "bn": "মহাখালী",
+   "x": 560,
+   "y": 170,
+   "lat": 23.7781,
+   "lng": 90.405,
+   "coordsApprox": true,
+   "zone": "central-north",
+   "aliases": [
+    "mohakhali",
+    "মহাখালী"
+   ],
+   "landmarks": [
+    {
+     "note_en": "Sample note: ask for the Mohakhali main stop; buses stop on the main road.",
+     "note_bn_banglish": "Sample: Mohakhali main stop e namben; bus main road e thame.",
+     "sample": true
+    }
+   ]
+  },
+  {
+   "id": "AGA",
+   "name": "Agargaon",
+   "bn": "আগারগাঁও",
+   "x": 300,
+   "y": 230,
+   "lat": 23.7775,
+   "lng": 90.38,
+   "coordsApprox": true,
+   "zone": "central-west",
+   "aliases": [
+    "agargaon",
+    "agargao",
+    "আগারগাঁও"
+   ],
+   "landmarks": [
+    {
+     "note_en": "Sample note: ask for the Agargaon main stop; buses stop on the main road.",
+     "note_bn_banglish": "Sample: Agargaon main stop e namben; bus main road e thame.",
+     "sample": true
+    }
+   ]
+  },
+  {
+   "id": "BAD",
+   "name": "Badda",
+   "bn": "বাড্ডা",
+   "x": 800,
+   "y": 200,
+   "lat": 23.7805,
+   "lng": 90.426,
+   "coordsApprox": true,
+   "zone": "east",
+   "aliases": [
+    "badda",
+    "বাড্ডা"
+   ],
+   "landmarks": [
+    {
+     "note_en": "Sample note: ask for the Badda main stop; buses stop on the main road.",
+     "note_bn_banglish": "Sample: Badda main stop e namben; bus main road e thame.",
+     "sample": true
+    }
+   ]
+  },
+  {
+   "id": "FAR",
+   "name": "Farmgate",
+   "bn": "ফার্মগেট",
+   "x": 440,
+   "y": 290,
+   "lat": 23.7561,
+   "lng": 90.3872,
+   "coordsApprox": true,
+   "zone": "central",
+   "aliases": [
+    "farmgate",
+    "farm gate",
+    "farmget",
+    "ফার্মগেট"
+   ],
+   "landmarks": [
+    {
+     "note_en": "MRT: use the Farmgate station entrance; the bus stop is on the opposite side of the road.",
+     "note_bn_banglish": "MRT er jonno Farmgate station er gate use koren; bus stop rastar opor pashe.",
+     "sample": true
+    }
+   ]
+  },
+  {
+   "id": "SHA",
+   "name": "Shahbagh",
+   "bn": "শাহবাগ",
+   "x": 540,
+   "y": 370,
+   "lat": 23.7388,
+   "lng": 90.3958,
+   "coordsApprox": true,
+   "zone": "central",
+   "aliases": [
+    "shahbagh",
+    "shahbag",
+    "sahbag",
+    "শাহবাগ"
+   ],
+   "landmarks": [
+    {
+     "note_en": "Sample note: ask for the Shahbagh main stop; buses stop on the main road.",
+     "note_bn_banglish": "Sample: Shahbagh main stop e namben; bus main road e thame.",
+     "sample": true
+    }
+   ]
+  },
+  {
+   "id": "SCI",
+   "name": "Science Lab",
+   "bn": "সায়েন্স ল্যাব",
+   "x": 400,
+   "y": 400,
+   "lat": 23.7395,
+   "lng": 90.3836,
+   "coordsApprox": true,
+   "zone": "central-south",
+   "aliases": [
+    "science lab",
+    "sci lab",
+    "sciencelab",
+    "science lab mor",
+    "সায়েন্স ল্যাব",
+    "সাইন্স ল্যাব"
+   ],
+   "landmarks": [
+    {
+     "note_en": "Sample note: ask for the Science Lab main stop; buses stop on the main road.",
+     "note_bn_banglish": "Sample: Science Lab main stop e namben; bus main road e thame.",
+     "sample": true
+    }
+   ]
+  },
+  {
+   "id": "MPR",
+   "name": "Mohammadpur",
+   "bn": "মোহাম্মদপুর",
+   "x": 120,
+   "y": 330,
+   "lat": 23.7662,
+   "lng": 90.3589,
+   "coordsApprox": true,
+   "zone": "west",
+   "aliases": [
+    "mohammadpur",
+    "mohammodpur",
+    "mdpur",
+    "md pur",
+    "মোহাম্মদপুর"
+   ],
+   "landmarks": [
+    {
+     "note_en": "Sample note: ask for the Mohammadpur main stop; buses stop on the main road.",
+     "note_bn_banglish": "Sample: Mohammadpur main stop e namben; bus main road e thame.",
+     "sample": true
+    }
+   ]
+  },
+  {
+   "id": "DHA",
+   "name": "Dhanmondi",
+   "bn": "ধানমন্ডি",
+   "x": 260,
+   "y": 440,
+   "lat": 23.7461,
+   "lng": 90.3742,
+   "coordsApprox": true,
+   "zone": "south-west",
+   "aliases": [
+    "dhanmondi",
+    "dhanmandi",
+    "dhanmondi 27",
+    "ধানমন্ডি"
+   ],
+   "landmarks": [
+    {
+     "note_en": "Sample note: ask for the Dhanmondi main stop; buses stop on the main road.",
+     "note_bn_banglish": "Sample: Dhanmondi main stop e namben; bus main road e thame.",
+     "sample": true
+    }
+   ]
+  },
+  {
+   "id": "MAL",
+   "name": "Malibagh",
+   "bn": "মালিবাগ",
+   "x": 760,
+   "y": 340,
+   "lat": 23.7497,
+   "lng": 90.4126,
+   "coordsApprox": true,
+   "zone": "east",
+   "aliases": [
+    "malibagh",
+    "malibag",
+    "মালিবাগ"
+   ],
+   "landmarks": [
+    {
+     "note_en": "Sample note: ask for the Malibagh main stop; buses stop on the main road.",
+     "note_bn_banglish": "Sample: Malibagh main stop e namben; bus main road e thame.",
+     "sample": true
+    }
+   ]
+  },
+  {
+   "id": "BAN",
+   "name": "Banasree",
+   "bn": "বনশ্রী",
+   "x": 900,
+   "y": 400,
+   "lat": 23.7632,
+   "lng": 90.4326,
+   "coordsApprox": true,
+   "zone": "far-east",
+   "aliases": [
+    "banasree",
+    "banasri",
+    "bonosree",
+    "বনশ্রী"
+   ],
+   "landmarks": [
+    {
+     "note_en": "Sample note: ask for the Banasree main stop; buses stop on the main road.",
+     "note_bn_banglish": "Sample: Banasree main stop e namben; bus main road e thame.",
+     "sample": true
+    }
+   ]
+  },
+  {
+   "id": "MOT",
+   "name": "Motijheel",
+   "bn": "মতিঝিল",
+   "x": 680,
+   "y": 470,
+   "lat": 23.733,
+   "lng": 90.4172,
+   "coordsApprox": true,
+   "zone": "central-east",
+   "aliases": [
+    "motijheel",
+    "motijhil",
+    "motijeel",
+    "মতিঝিল"
+   ],
+   "landmarks": [
+    {
+     "note_en": "Sample note: ask for the Motijheel main stop; buses stop on the main road.",
+     "note_bn_banglish": "Sample: Motijheel main stop e namben; bus main road e thame.",
+     "sample": true
+    }
+   ]
+  },
+  {
+   "id": "JAT",
+   "name": "Jatrabari",
+   "bn": "যাত্রাবাড়ী",
+   "x": 820,
+   "y": 560,
+   "lat": 23.7101,
+   "lng": 90.4344,
+   "coordsApprox": true,
+   "zone": "south-east",
+   "aliases": [
+    "jatrabari",
+    "যাত্রাবাড়ী"
+   ],
+   "landmarks": [
+    {
+     "note_en": "Sample note: ask for the Jatrabari main stop; buses stop on the main road.",
+     "note_bn_banglish": "Sample: Jatrabari main stop e namben; bus main road e thame.",
+     "sample": true
+    }
+   ]
+  }
+ ],
+ "lines": [
+  {
+   "id": "MRT6",
+   "name": "MRT Line-6",
+   "mode": "metro",
+   "stops": [
+    "UTT",
+    "MIR",
+    "AGA",
+    "FAR",
+    "SHA",
+    "MOT"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "B1",
+   "name": "B1 Mirpur-Motijheel",
+   "mode": "bus",
+   "stops": [
+    "MIR",
+    "AGA",
+    "FAR",
+    "SHA",
+    "MOT"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "B2",
+   "name": "B2 Uttara-Farmgate",
+   "mode": "bus",
+   "stops": [
+    "UTT",
+    "MOH",
+    "FAR"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "B3",
+   "name": "B3 Badda-Motijheel",
+   "mode": "bus",
+   "stops": [
+    "BAD",
+    "MAL",
+    "MOT"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "B4",
+   "name": "B4 Mohammadpur-Jatrabari",
+   "mode": "bus",
+   "stops": [
+    "MPR",
+    "DHA",
+    "SCI",
+    "SHA",
+    "MOT",
+    "JAT"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "B5",
+   "name": "B5 Banasree-Motijheel",
+   "mode": "bus",
+   "stops": [
+    "BAN",
+    "MAL",
+    "MOT"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "B6",
+   "name": "B6 Agargaon-Mohammadpur",
+   "mode": "bus",
+   "stops": [
+    "AGA",
+    "MPR"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "B7",
+   "name": "B7 Mohakhali-Badda",
+   "mode": "bus",
+   "stops": [
+    "MOH",
+    "BAD"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "L1",
+   "name": "L1 Leguna Motijheel-Jatrabari",
+   "mode": "leguna",
+   "stops": [
+    "MOT",
+    "JAT"
+   ],
+   "status": "active",
+   "flatFare": 15
+  },
+  {
+   "id": "L2",
+   "name": "L2 Leguna Mirpur-Agargaon",
+   "mode": "leguna",
+   "stops": [
+    "MIR",
+    "AGA"
+   ],
+   "status": "active",
+   "flatFare": 15
+  },
+  {
+   "id": "R-BAN-MAL",
+   "name": "Rickshaw BAN-MAL",
+   "mode": "rickshaw",
+   "stops": [
+    "BAN",
+    "MAL"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "R-MAL-BAD",
+   "name": "Rickshaw MAL-BAD",
+   "mode": "rickshaw",
+   "stops": [
+    "MAL",
+    "BAD"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "R-SHA-SCI",
+   "name": "Rickshaw SHA-SCI",
+   "mode": "rickshaw",
+   "stops": [
+    "SHA",
+    "SCI"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "R-SCI-DHA",
+   "name": "Rickshaw SCI-DHA",
+   "mode": "rickshaw",
+   "stops": [
+    "SCI",
+    "DHA"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "R-FAR-SCI",
+   "name": "Rickshaw FAR-SCI",
+   "mode": "rickshaw",
+   "stops": [
+    "FAR",
+    "SCI"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "R-MOH-FAR",
+   "name": "Rickshaw MOH-FAR",
+   "mode": "rickshaw",
+   "stops": [
+    "MOH",
+    "FAR"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "R-MPR-DHA",
+   "name": "Rickshaw MPR-DHA",
+   "mode": "rickshaw",
+   "stops": [
+    "MPR",
+    "DHA"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "C-MOH-BAD",
+   "name": "CNG MOH-BAD",
+   "mode": "cng",
+   "stops": [
+    "MOH",
+    "BAD"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "C-DHA-FAR",
+   "name": "CNG DHA-FAR",
+   "mode": "cng",
+   "stops": [
+    "DHA",
+    "FAR"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "C-MAL-SHA",
+   "name": "CNG MAL-SHA",
+   "mode": "cng",
+   "stops": [
+    "MAL",
+    "SHA"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "C-UTT-MOH",
+   "name": "CNG UTT-MOH",
+   "mode": "cng",
+   "stops": [
+    "UTT",
+    "MOH"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "C-AGA-DHA",
+   "name": "CNG AGA-DHA",
+   "mode": "cng",
+   "stops": [
+    "AGA",
+    "DHA"
+   ],
+   "status": "active"
+  },
+  {
+   "id": "W-SHA-SCI",
+   "name": "Walk Shahbagh-Science Lab",
+   "mode": "walk",
+   "stops": [
+    "SHA",
+    "SCI"
+   ],
+   "status": "active"
+  }
+ ],
+ "edges": [
+  {
+   "id": "MRT6:UTT-MIR",
+   "line": "MRT6",
+   "mode": "metro",
+   "from": "UTT",
+   "to": "MIR",
+   "km": 9.0,
+   "minutes": 14,
+   "studentEligible": false,
+   "boardingNote": "Elevated metro; tap your card at the gate."
+  },
+  {
+   "id": "MRT6:MIR-AGA",
+   "line": "MRT6",
+   "mode": "metro",
+   "from": "MIR",
+   "to": "AGA",
+   "km": 3.5,
+   "minutes": 6,
+   "studentEligible": false,
+   "boardingNote": "Elevated metro; tap your card at the gate."
+  },
+  {
+   "id": "MRT6:AGA-FAR",
+   "line": "MRT6",
+   "mode": "metro",
+   "from": "AGA",
+   "to": "FAR",
+   "km": 2.0,
+   "minutes": 4,
+   "studentEligible": false,
+   "boardingNote": "Elevated metro; tap your card at the gate."
+  },
+  {
+   "id": "MRT6:FAR-SHA",
+   "line": "MRT6",
+   "mode": "metro",
+   "from": "FAR",
+   "to": "SHA",
+   "km": 2.5,
+   "minutes": 5,
+   "studentEligible": false,
+   "boardingNote": "Elevated metro; tap your card at the gate."
+  },
+  {
+   "id": "MRT6:SHA-MOT",
+   "line": "MRT6",
+   "mode": "metro",
+   "from": "SHA",
+   "to": "MOT",
+   "km": 3.0,
+   "minutes": 6,
+   "studentEligible": false,
+   "boardingNote": "Elevated metro; tap your card at the gate."
+  },
+  {
+   "id": "B1:MIR-AGA",
+   "line": "B1",
+   "mode": "bus",
+   "from": "MIR",
+   "to": "AGA",
+   "km": 3.5,
+   "minutes": 10.5,
+   "studentEligible": true,
+   "boardingNote": "Parallel to metro, cheaper, slower."
+  },
+  {
+   "id": "B1:AGA-FAR",
+   "line": "B1",
+   "mode": "bus",
+   "from": "AGA",
+   "to": "FAR",
+   "km": 2.0,
+   "minutes": 6.0,
+   "studentEligible": true,
+   "boardingNote": "Parallel to metro, cheaper, slower."
+  },
+  {
+   "id": "B1:FAR-SHA",
+   "line": "B1",
+   "mode": "bus",
+   "from": "FAR",
+   "to": "SHA",
+   "km": 2.5,
+   "minutes": 7.5,
+   "studentEligible": true,
+   "boardingNote": "Parallel to metro, cheaper, slower."
+  },
+  {
+   "id": "B1:SHA-MOT",
+   "line": "B1",
+   "mode": "bus",
+   "from": "SHA",
+   "to": "MOT",
+   "km": 3.0,
+   "minutes": 9.0,
+   "studentEligible": true,
+   "boardingNote": "Parallel to metro, cheaper, slower."
+  },
+  {
+   "id": "B2:UTT-MOH",
+   "line": "B2",
+   "mode": "bus",
+   "from": "UTT",
+   "to": "MOH",
+   "km": 8.0,
+   "minutes": 24.0,
+   "studentEligible": true,
+   "boardingNote": ""
+  },
+  {
+   "id": "B2:MOH-FAR",
+   "line": "B2",
+   "mode": "bus",
+   "from": "MOH",
+   "to": "FAR",
+   "km": 2.5,
+   "minutes": 7.5,
+   "studentEligible": true,
+   "boardingNote": ""
+  },
+  {
+   "id": "B3:BAD-MAL",
+   "line": "B3",
+   "mode": "bus",
+   "from": "BAD",
+   "to": "MAL",
+   "km": 3.0,
+   "minutes": 9.0,
+   "studentEligible": true,
+   "boardingNote": ""
+  },
+  {
+   "id": "B3:MAL-MOT",
+   "line": "B3",
+   "mode": "bus",
+   "from": "MAL",
+   "to": "MOT",
+   "km": 3.0,
+   "minutes": 9.0,
+   "studentEligible": true,
+   "boardingNote": ""
+  },
+  {
+   "id": "B4:MPR-DHA",
+   "line": "B4",
+   "mode": "bus",
+   "from": "MPR",
+   "to": "DHA",
+   "km": 3.0,
+   "minutes": 9.0,
+   "studentEligible": true,
+   "boardingNote": "Long cross-city route."
+  },
+  {
+   "id": "B4:DHA-SCI",
+   "line": "B4",
+   "mode": "bus",
+   "from": "DHA",
+   "to": "SCI",
+   "km": 1.5,
+   "minutes": 4.5,
+   "studentEligible": true,
+   "boardingNote": "Long cross-city route."
+  },
+  {
+   "id": "B4:SCI-SHA",
+   "line": "B4",
+   "mode": "bus",
+   "from": "SCI",
+   "to": "SHA",
+   "km": 1.5,
+   "minutes": 4.5,
+   "studentEligible": true,
+   "boardingNote": "Long cross-city route."
+  },
+  {
+   "id": "B4:SHA-MOT",
+   "line": "B4",
+   "mode": "bus",
+   "from": "SHA",
+   "to": "MOT",
+   "km": 3.0,
+   "minutes": 9.0,
+   "studentEligible": true,
+   "boardingNote": "Long cross-city route."
+  },
+  {
+   "id": "B4:MOT-JAT",
+   "line": "B4",
+   "mode": "bus",
+   "from": "MOT",
+   "to": "JAT",
+   "km": 3.0,
+   "minutes": 9.0,
+   "studentEligible": true,
+   "boardingNote": "Long cross-city route."
+  },
+  {
+   "id": "B5:BAN-MAL",
+   "line": "B5",
+   "mode": "bus",
+   "from": "BAN",
+   "to": "MAL",
+   "km": 2.5,
+   "minutes": 7.5,
+   "studentEligible": true,
+   "boardingNote": ""
+  },
+  {
+   "id": "B5:MAL-MOT",
+   "line": "B5",
+   "mode": "bus",
+   "from": "MAL",
+   "to": "MOT",
+   "km": 3.0,
+   "minutes": 9.0,
+   "studentEligible": true,
+   "boardingNote": ""
+  },
+  {
+   "id": "B6:AGA-MPR",
+   "line": "B6",
+   "mode": "bus",
+   "from": "AGA",
+   "to": "MPR",
+   "km": 3.0,
+   "minutes": 9.0,
+   "studentEligible": true,
+   "boardingNote": ""
+  },
+  {
+   "id": "B7:MOH-BAD",
+   "line": "B7",
+   "mode": "bus",
+   "from": "MOH",
+   "to": "BAD",
+   "km": 4.0,
+   "minutes": 12.0,
+   "studentEligible": true,
+   "boardingNote": ""
+  },
+  {
+   "id": "L1:MOT-JAT",
+   "line": "L1",
+   "mode": "leguna",
+   "from": "MOT",
+   "to": "JAT",
+   "km": 3.0,
+   "minutes": 12,
+   "studentEligible": false,
+   "boardingNote": ""
+  },
+  {
+   "id": "L2:MIR-AGA",
+   "line": "L2",
+   "mode": "leguna",
+   "from": "MIR",
+   "to": "AGA",
+   "km": 3.5,
+   "minutes": 15,
+   "studentEligible": false,
+   "boardingNote": ""
+  },
+  {
+   "id": "R-BAN-MAL:BAN-MAL",
+   "line": "R-BAN-MAL",
+   "mode": "rickshaw",
+   "from": "BAN",
+   "to": "MAL",
+   "km": 2.5,
+   "minutes": 15,
+   "studentEligible": false,
+   "boardingNote": "Non-metered: agree the fare before you sit."
+  },
+  {
+   "id": "R-MAL-BAD:MAL-BAD",
+   "line": "R-MAL-BAD",
+   "mode": "rickshaw",
+   "from": "MAL",
+   "to": "BAD",
+   "km": 3.0,
+   "minutes": 18,
+   "studentEligible": false,
+   "boardingNote": "Non-metered: agree the fare before you sit."
+  },
+  {
+   "id": "R-SHA-SCI:SHA-SCI",
+   "line": "R-SHA-SCI",
+   "mode": "rickshaw",
+   "from": "SHA",
+   "to": "SCI",
+   "km": 1.5,
+   "minutes": 9,
+   "studentEligible": false,
+   "boardingNote": "Non-metered: agree the fare before you sit."
+  },
+  {
+   "id": "R-SCI-DHA:SCI-DHA",
+   "line": "R-SCI-DHA",
+   "mode": "rickshaw",
+   "from": "SCI",
+   "to": "DHA",
+   "km": 1.5,
+   "minutes": 9,
+   "studentEligible": false,
+   "boardingNote": "Non-metered: agree the fare before you sit."
+  },
+  {
+   "id": "R-FAR-SCI:FAR-SCI",
+   "line": "R-FAR-SCI",
+   "mode": "rickshaw",
+   "from": "FAR",
+   "to": "SCI",
+   "km": 2.0,
+   "minutes": 12,
+   "studentEligible": false,
+   "boardingNote": "Non-metered: agree the fare before you sit."
+  },
+  {
+   "id": "R-MOH-FAR:MOH-FAR",
+   "line": "R-MOH-FAR",
+   "mode": "rickshaw",
+   "from": "MOH",
+   "to": "FAR",
+   "km": 2.5,
+   "minutes": 15,
+   "studentEligible": false,
+   "boardingNote": "Non-metered: agree the fare before you sit."
+  },
+  {
+   "id": "R-MPR-DHA:MPR-DHA",
+   "line": "R-MPR-DHA",
+   "mode": "rickshaw",
+   "from": "MPR",
+   "to": "DHA",
+   "km": 2.5,
+   "minutes": 15,
+   "studentEligible": false,
+   "boardingNote": "Non-metered: agree the fare before you sit."
+  },
+  {
+   "id": "C-MOH-BAD:MOH-BAD",
+   "line": "C-MOH-BAD",
+   "mode": "cng",
+   "from": "MOH",
+   "to": "BAD",
+   "km": 4.0,
+   "minutes": 14,
+   "studentEligible": false,
+   "boardingNote": "CNG: usually unmetered, agree the fare before the ride."
+  },
+  {
+   "id": "C-DHA-FAR:DHA-FAR",
+   "line": "C-DHA-FAR",
+   "mode": "cng",
+   "from": "DHA",
+   "to": "FAR",
+   "km": 3.0,
+   "minutes": 12,
+   "studentEligible": false,
+   "boardingNote": "CNG: usually unmetered, agree the fare before the ride."
+  },
+  {
+   "id": "C-MAL-SHA:MAL-SHA",
+   "line": "C-MAL-SHA",
+   "mode": "cng",
+   "from": "MAL",
+   "to": "SHA",
+   "km": 3.0,
+   "minutes": 12,
+   "studentEligible": false,
+   "boardingNote": "CNG: usually unmetered, agree the fare before the ride."
+  },
+  {
+   "id": "C-UTT-MOH:UTT-MOH",
+   "line": "C-UTT-MOH",
+   "mode": "cng",
+   "from": "UTT",
+   "to": "MOH",
+   "km": 8.5,
+   "minutes": 25,
+   "studentEligible": false,
+   "boardingNote": "CNG: usually unmetered, agree the fare before the ride."
+  },
+  {
+   "id": "C-AGA-DHA:AGA-DHA",
+   "line": "C-AGA-DHA",
+   "mode": "cng",
+   "from": "AGA",
+   "to": "DHA",
+   "km": 3.5,
+   "minutes": 13,
+   "studentEligible": false,
+   "boardingNote": "CNG: usually unmetered, agree the fare before the ride."
+  },
+  {
+   "id": "W-SHA-SCI:SHA-SCI",
+   "line": "W-SHA-SCI",
+   "mode": "walk",
+   "from": "SHA",
+   "to": "SCI",
+   "km": 1.5,
+   "minutes": 20,
+   "studentEligible": false,
+   "boardingNote": ""
+  }
+ ]
+}

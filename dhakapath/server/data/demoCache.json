@@ -1,0 +1,135 @@
+{
+ "_note": "Expected parsed JSON for the scripted demo inputs (architecture doc §5). Used only when a live AI call fails. Regenerate: node tools/make_demo_cache.js",
+ "intents": {
+  "dhanmondi theke motijheel student": {
+   "origin": "DHA",
+   "destination": "MOT",
+   "student": true,
+   "maxBudget": null,
+   "avoidHubs": [],
+   "avoidModes": [],
+   "maxTransfers": null,
+   "claimedFare": null,
+   "alert": null,
+   "mode": null,
+   "sort": null,
+   "source": "rules",
+   "departAt": null,
+   "avoidCongested": false,
+   "lang": "bn",
+   "intent": "route_search"
+  },
+  "farmgate bondho onno route": {
+   "origin": null,
+   "destination": null,
+   "student": null,
+   "maxBudget": null,
+   "avoidHubs": [
+    "FAR"
+   ],
+   "avoidModes": [],
+   "maxTransfers": null,
+   "claimedFare": null,
+   "alert": null,
+   "mode": null,
+   "sort": null,
+   "source": "rules",
+   "departAt": null,
+   "avoidCongested": false,
+   "lang": "bn",
+   "intent": "alternatives"
+  },
+  "student hole koto": {
+   "origin": null,
+   "destination": null,
+   "student": true,
+   "maxBudget": null,
+   "avoidHubs": [],
+   "avoidModes": [],
+   "maxTransfers": null,
+   "claimedFare": null,
+   "alert": null,
+   "mode": null,
+   "sort": null,
+   "source": "rules",
+   "departAt": null,
+   "avoidCongested": false,
+   "lang": "bn",
+   "intent": "route_search",
+   "followUp": "refine"
+  },
+  "conductor 40 chaise farmgate theke motijheel thik ache": {
+   "origin": "FAR",
+   "destination": "MOT",
+   "student": null,
+   "maxBudget": null,
+   "avoidHubs": [],
+   "avoidModes": [],
+   "maxTransfers": null,
+   "claimedFare": 40,
+   "alert": null,
+   "mode": "bus",
+   "sort": null,
+   "source": "rules",
+   "departAt": null,
+   "avoidCongested": false,
+   "lang": "bn",
+   "intent": "fare_check"
+  },
+  "mirpur theke motijheel student 40 takar moddhe": {
+   "origin": "MIR",
+   "destination": "MOT",
+   "student": true,
+   "maxBudget": 40,
+   "avoidHubs": [],
+   "avoidModes": [],
+   "maxTransfers": null,
+   "claimedFare": null,
+   "alert": null,
+   "mode": null,
+   "sort": null,
+   "source": "rules",
+   "departAt": null,
+   "avoidCongested": false,
+   "lang": "bn",
+   "intent": "route_search"
+  },
+  "ei alert ta ki still thik": {
+   "origin": null,
+   "destination": null,
+   "student": null,
+   "maxBudget": null,
+   "avoidHubs": [],
+   "avoidModes": [],
+   "maxTransfers": null,
+   "claimedFare": null,
+   "alert": null,
+   "mode": null,
+   "sort": null,
+   "source": "rules",
+   "departAt": null,
+   "avoidCongested": false,
+   "lang": "bn",
+   "intent": "alert_reliability_qa"
+  }
+ },
+ "alerts": {
+  "science lab e hatu pani rickshaw o jacche na": {
+   "ok": true,
+   "hubId": "SCI",
+   "placeName": "Science Lab",
+   "type": "waterlogging",
+   "severity": 3,
+   "contradictory": false,
+   "confidence_hint": 0.65,
+   "keywords": {
+    "waterlogging": [
+     "pani"
+    ]
+   },
+   "missing": [],
+   "source": "rules",
+   "isIncident": true
+  }
+ }
+}

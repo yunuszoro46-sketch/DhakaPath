@@ -1,0 +1,163 @@
+{
+ "_notice": "Seed assumptions from the team build spec. VERIFY items must be checked against current official sources before the demo.",
+ "fares": {
+  "version": 1,
+  "effectiveFrom": null,
+  "source": "team build spec seed values (VERIFY against BRTA / DMTCL notices)",
+  "bus": {
+   "perKm": 2.45,
+   "minimum": 10,
+   "studentDivisor": 2,
+   "VERIFY": "current BRTA bus rate notice"
+  },
+  "metro": {
+   "perKm": 5,
+   "minimum": 20,
+   "maximum": 100,
+   "roundTo": 5,
+   "VERIFY": "official MRT-6 fare table"
+  },
+  "leguna": {
+   "VERIFY": "flat fares per line in seed.json"
+  },
+  "rickshaw": {
+   "lowPerKm": 20,
+   "highPerKm": 30,
+   "minimum": 20,
+   "roundTo": 5,
+   "surge": {
+    "rush": 1.3,
+    "rain": 1.5,
+    "both": 1.8
+   },
+   "VERIFY": "current rickshaw rates"
+  },
+  "cng": {
+   "lowPerKm": 35,
+   "highPerKm": 50,
+   "minimum": 60,
+   "roundTo": 5,
+   "surge": {
+    "rush": 1.3,
+    "rain": 1.4,
+    "both": 1.6
+   },
+   "VERIFY": "current CNG rates; not in the team spec, added because the problem statement names CNGs as unmetered connectors"
+  }
+ },
+ "rushHours": [
+  [
+   "07:30",
+   "10:30"
+  ],
+  [
+   "16:30",
+   "20:00"
+  ]
+ ],
+ "_rushHours_assumption": "Dhaka office peak windows (Asia/Dhaka time); used when the user does not set rush hour explicitly",
+ "boardWait": {
+  "bus": 8,
+  "metro": 5,
+  "leguna": 5,
+  "rickshaw": 2,
+  "cng": 4,
+  "walk": 0,
+  "_assumption": "bus and metro waits from the spec; leguna and rickshaw waits are team assumptions"
+ },
+ "transferWalkMinutes": 4,
+ "conditions": {
+  "rush": {
+   "time": {
+    "bus": 1.5,
+    "rickshaw": 1.3,
+    "cng": 1.4,
+    "metro": 1.0,
+    "leguna": 1.5,
+    "walk": 1.0
+   },
+   "_assumption": "leguna rush multiplier not in spec; set equal to bus"
+  },
+  "rain": {
+   "time": {
+    "bus": 1.4,
+    "rickshaw": 1.3,
+    "cng": 1.3,
+    "metro": 1.0,
+    "leguna": 1.4,
+    "walk": 1.3
+   },
+   "_assumption": "leguna and walk rain multipliers not in spec"
+  },
+  "heavyRain": {
+   "time": {
+    "bus": 1.8,
+    "rickshaw": 1.6,
+    "cng": 1.6,
+    "metro": 1.0,
+    "leguna": 1.8,
+    "walk": 1.6
+   },
+   "blocksModes": [
+    "cng",
+    "leguna"
+   ],
+   "_assumption": "team assumption, not in spec: heavy rain (rainSeverity 'heavy') slows road modes more and takes CNG and leguna off the road in the rain zone (small engines stall in waterlogging); rickshaws and buses keep running; metro unaffected"
+  }
+ },
+ "ranking": {
+  "minutesWeight": 1,
+  "fareWeight": 0.4,
+  "transferWeight": 8,
+  "maxEdges": 6,
+  "maxDfsNodes": 200000,
+  "_maxDfsNodes": "safety limit on DFS work; if reached the result is marked SEARCH_INCOMPLETE (never reached on the seed network)"
+ },
+ "alerts": {
+  "initialConfidence": {
+   "user": 0.35,
+   "ai_ingest": 0.3,
+   "admin": 0.9
+  },
+  "confirmStep": 0.2,
+  "resolveStep": 0.3,
+  "resolvedVotesToClose": 2,
+  "halfLifeMinutes": {
+   "waterlogging": 45,
+   "gridlock": 30,
+   "blockade": 60,
+   "construction": 1440
+  },
+  "thresholds": {
+   "active": 0.6,
+   "unverified": 0.3,
+   "fading": 0.15
+  },
+  "unverifiedTimeMultiplier": 1.25,
+  "activeTimeMultiplier": 2.0,
+  "activeBreaksTypes": [
+   "blockade",
+   "construction",
+   "waterlogging"
+  ],
+  "_assumption": "spec says hard = 'edge broken/heavy penalty': blockade, construction and waterlogging break road edges; gridlock doubles time"
+ },
+ "sanity": {
+  "rickshawPerKm": [
+   5,
+   60
+  ],
+  "cngPerKm": [
+   10,
+   100
+  ],
+  "busMaxFactor": 2,
+  "busMinimum": 10,
+  "contradictionWindowMinutes": 10,
+  "rateLimit": {
+   "reports": 3,
+   "windowMinutes": 10
+  },
+  "severityDowngradeMinutes": 30
+ }
+}
