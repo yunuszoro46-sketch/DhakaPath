@@ -1,0 +1,23 @@
+# Render Blueprint: one free web service, no build step, no database.
+# Deploy: Render dashboard → New → Blueprint → pick this repository → Apply.
+services:
+  - type: web
+    name: dhakapath
+    runtime: node
+    plan: free
+    buildCommand: echo "No build step; DhakaPath has no required dependencies."
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: ADMIN_PASSWORD        # Admin tab password; Render generates one (see the service's Environment page)
+        generateValue: true
+      - key: LOG
+        value: "off"
+      # Optional AI keys; without them the rule-based parser answers ("AI: offline parser").
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
