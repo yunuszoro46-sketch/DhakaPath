@@ -4,6 +4,10 @@
 
 **Grounded route, fare and street-alert assistant for Dhaka commuters** — built for the INIF 2026 Smart City hackathon.
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-threerd--iait--national--it--fest--hackathon.onrender.com-00c853?style=for-the-badge&logo=render&logoColor=white)](https://threerd-iait-national-it-fest-hackathon.onrender.com/)
+
+> Hosted on Render's free tier — the first load after a while may take ~30-60s to wake up.
+
 The network graph decides routes, fares and alert status; an optional AI layer only reads messages and phrases explanations. **If the AI is down or has no key, everything still works.** One Node.js process, no database, no build step, no required dependencies: `npm start` on a fresh clone is the whole setup.
 
 | Plan: the map is the stage, routes are tickets | Monsoon Mode (before / after) |
