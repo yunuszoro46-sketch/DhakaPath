@@ -386,18 +386,9 @@ How to re-run the browser checks: `tools/browser-checks/README.md`.
 
 `render.yaml` is a Render Blueprint: in the Render dashboard choose **New → Blueprint**, pick this repository and press **Apply**. It creates one free Node web service that runs `npm start` (no build step), checks `/api/health`, generates an `ADMIN_PASSWORD` (shown under the service's *Environment*), and leaves `GEMINI_API_KEY` / `GROQ_API_KEY` for you to fill in if you want live AI. Without a key the app runs on the rule-based parser. Render provides `PORT`. On the free plan the disk is temporary and the service sleeps when idle: saved alerts, fare reports and admin edits reset on each deploy or restart, and the first visit after a sleep takes a little longer.
 
-## Deploy / push to GitHub
+This project is already live at **https://threerd-iait-national-it-fest-hackathon.onrender.com/**.
 
-```bash
-git init
-git add .
-git commit -m "DhakaPath: grounded route, fare and street-alert assistant"
-git branch -M main
-git remote add origin git@github.com:<you>/dhakapath.git
-git push -u origin main
-```
-
-`.gitignore` already excludes `.env`, `node_modules/`, `data/state.json`, `dist/`, logs and browser-check screenshots. To run on a host: set `ADMIN_PASSWORD` (and AI keys if you have them) as environment variables and start with `npm start`; nothing has to be built.
+`.gitignore` already excludes `.env`, `node_modules/`, `data/state.json`, `dist/`, logs and browser-check screenshots. To run on another host: set `ADMIN_PASSWORD` (and AI keys if you have them) as environment variables and start with `npm start`; nothing has to be built.
 
 ## Licence
 
