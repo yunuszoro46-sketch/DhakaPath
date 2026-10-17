@@ -24,6 +24,7 @@ const ok = (n, c, x = '') => results.push([c ? 'PASS' : 'FAIL', n, String(x).sli
     const go = async (o, d, extra = {}) => {
       await page.selectOption('#origin', o); await page.selectOption('#destination', d);
       await page.fill('#departAt', '12:00');
+      await page.evaluate(() => { document.querySelector('#filters').open = true; });   // Night Route UI: limits live under More options
       for (const [k, v] of Object.entries({ maxBudget: '', maxTransfers: '', maxTravelTime: '', ...extra })) await page.fill('#' + k, v);
       await page.click('#plan-form button.primary');
       await page.waitForTimeout(OFFLINE ? 250 : 400);
@@ -59,6 +60,7 @@ const ok = (n, c, x = '') => results.push([c ? 'PASS' : 'FAIL', n, String(x).sli
     const s1 = await page.textContent('#sim-out');
     ok(`${T} sim MRT-6 suspended: cut, detour = planned backup`, /MRT6 Mirpur–Motijheel is cut/.test(s1) && /now the main route/.test(s1) && /Simulated conditions, not live/.test(s1), s1);
     // 5 custom: line not running + delay
+    await page.evaluate(() => { document.querySelector('#sim-custom').open = true; });   // Night Route UI: these controls live under a disclosure
     await page.selectOption('#sim-down', 'B1');
     await page.selectOption('#sim-delay-line', 'MRT6'); await page.fill('#sim-delay-rate', '50'); await page.fill('#sim-delay-min', '10');
     await page.click('#sim-run'); await page.waitForTimeout(400);

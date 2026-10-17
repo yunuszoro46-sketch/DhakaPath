@@ -61,6 +61,7 @@ const ok = (n, c, x = '') => results.push([c ? 'PASS' : 'FAIL', n, String(x).sli
       ok(`${T} server error on search shows a message, map still drawn`, /Something went wrong/.test(await page.textContent('#search-out')) && (await page.$$('#map .map-label')).length === 14);
       await page.unroute('**/api/search');
       // 5 bad input from the form: negative minutes -> clean 400 message
+      await page.evaluate(() => { document.querySelector('#filters').open = true; });   // Night Route UI: limits live under More options
       await page.$eval('#maxTravelTime', (e) => e.removeAttribute('min')); await page.fill('#maxTravelTime', '-5'); await page.click('#plan-form button.primary'); await page.waitForTimeout(400);
       ok(`${T} invalid form value -> readable error`, /maxTravelTime must be minutes/.test(await page.textContent('#search-out')), await page.textContent('#search-out'));
       ok(`${T} no uncaught errors`, errors.length === 0, errors.join(' | '));

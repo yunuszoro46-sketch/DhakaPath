@@ -52,6 +52,10 @@ ui_js, umods = bundle(os.path.join(pub, 'js', 'main.js'), os.path.join(pub, 'js'
 
 html = open(os.path.join(pub, 'index.html'), encoding='utf-8').read()
 css = open(os.path.join(pub, 'styles.css'), encoding='utf-8').read()
+# vendored fonts (SIL OFL, public/vendor/fonts) inlined as data URIs so the preview stays one file
+import base64
+css = re.sub(r'url\("(vendor/fonts/[^"]+\.woff)"\)', lambda m: 'url("data:font/woff;base64,' + base64.b64encode(open(os.path.join(pub, m.group(1)), 'rb').read()).decode() + '")', css)
+assert 'url("vendor/fonts' not in css, 'fonts not inlined'
 html = html.replace('<link rel="stylesheet" href="styles.css">', '<style>\n' + css + '\n</style>')
 # vendored Leaflet (BSD-2, public/vendor/leaflet/LICENSE) inlined so the preview is one file
 lf = lambda n: open(os.path.join(pub, 'vendor', 'leaflet', n), encoding='utf-8').read()

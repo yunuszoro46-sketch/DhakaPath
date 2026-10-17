@@ -9,7 +9,12 @@ export const MODES = ['metro', 'bus', 'leguna', 'rickshaw', 'cng', 'walk'];
 export const MODE_NAME = { metro: 'MRT-6', bus: 'Bus', leguna: 'Leguna', rickshaw: 'Rickshaw', cng: 'CNG', walk: 'Walk' };
 export const RANGE = (m) => m === 'rickshaw' || m === 'cng';
 export const dhakaTime = (t) => new Date(t).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Dhaka' });
-export const pills = (o) => `<div class="modes">${o.legs.map((l, i) => `${i ? '<span class="muted">›</span>' : ''}<span class="mpill ${l.mode}">${l.mode === 'bus' || l.mode === 'leguna' ? esc(l.line) : MODE_NAME[l.mode]}</span>`).join('')}</div>`;
+// journey strip: one plate per leg, grown by the leg's wait + ride minutes (the lighter head is the wait)
+const legMin = (l) => Math.max(1, (Number(l.rideMinutes) || 0) + (Number(l.wait) || 0));
+export const pills = (o) => `<div class="modes" role="list" aria-label="Legs">${o.legs.map((l, i) => { const m = legMin(l), w = Math.round(100 * (Number(l.wait) || 0) / m);
+  return `${i ? '<span class="muted" aria-hidden="true">›</span>' : ''}<span class="mpill ${l.mode}" role="listitem" style="flex-grow:${m};--wait:${w}%;--i:${i}" data-min="${m}" title="${esc(MODE_NAME[l.mode])} ${esc(l.line || '')}: ${m} min${l.wait ? ` incl. ${l.wait} min wait` : ''}">${l.mode === 'bus' || l.mode === 'leguna' ? esc(l.line) : MODE_NAME[l.mode]}</span>`; }).join('')}</div>`;
+// inline icon from the sprite in index.html (tools/make_icons.py)
+export const ic = (name, cls = '') => `<svg class="ic${cls ? ' ' + cls : ''}" aria-hidden="true" focusable="false"><use href="#i-${name}"/></svg>`;
 export const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch { return null; } return v; };
 
 // Busy state for a button while a request runs: disabled, aria-busy, temporary label; always restored.

@@ -5,7 +5,7 @@
 // (S.result / S.sim); the map never computes or validates routes. Positions are approximate area
 // centres. If Leaflet is missing the schematic SVG map is used; if tiles fail the vector layer stays
 // on a plain background with a note.
-import { $, esc, rng } from './util.js';
+import { $, esc, rng, ic } from './util.js';
 import { S, actions, hubName } from './store.js';
 
 export const ROUTE_COLORS = { cheapest: '#2563eb', fastest: '#16a34a', balanced: '#7c3aed', backup: '#f97316' };
@@ -14,7 +14,7 @@ const DIR = { UTT: 'top', MIR: 'left', MPR: 'left', DHA: 'left', SCI: 'bottom', 
 const DHAKA = { minLat: 23.6, maxLat: 24.0, minLng: 90.2, maxLng: 90.6 };
 export const inDhaka = (h) => !!h && Number.isFinite(h.lat) && Number.isFinite(h.lng) && h.lat > DHAKA.minLat && h.lat < DHAKA.maxLat && h.lng > DHAKA.minLng && h.lng < DHAKA.maxLng;
 
-let map = null, net = null, routes = null, tiles = null, viewAll = false, lastFit = '';
+let map = null, net = null, routes = null, tiles = null, viewAll = false, lastFit = '', lastDrawn = '';
 const tileState = { ok: 0, err: 0, timedOut: false };
 
 export const streetReady = () => !!map;
@@ -22,7 +22,8 @@ export const streetReady = () => !!map;
 export function initStreet() {
   const L = window.L, el = $('#lmap');
   if (!L || !el || map) return !!map;
-  map = L.map(el, { zoomControl: true, scrollWheelZoom: true }).setView([23.775, 90.4], 12);
+  map = L.map(el, { zoomControl: false, scrollWheelZoom: true }).setView([23.775, 90.4], 12);
+  L.control.zoom({ position: 'bottomright' }).addTo(map);              // top-left holds the route toolbar
   tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' });
   tiles.on('tileload', () => { tileState.ok++; tileNote(); });
   tiles.on('tileerror', () => { tileState.err++; tileNote(); });
@@ -118,13 +119,16 @@ function draw() {
     L.polyline([[a.lat, a.lng], [b.lat, b.lng]], out ? { color: '#dc2626', weight: 4, dashArray: '4 8', opacity: 0.9 } : { color: '#64748b', weight: 3, opacity: 0.65 })
       .bindTooltip(`<div style="font-weight:700">${esc(a.name)} ↔ ${esc(b.name)}</div>${out ? '<div style="color:#dc2626;font-weight:600">BLOCKED / UNAVAILABLE</div>' : ''}<div class="small" style="color:#475569">${es.map((e) => `${esc(e.line)} (${esc(e.mode)}) · ${e.minutes} min${why(e) ? ` ✕ ${why(e)}` : ''}`).join('<br>')}</div>`, { sticky: true, className: 'edge-tooltip' }).addTo(net);
   }
-  // routes
+  // routes; the main route draws itself in once when the selection changes (not on every poll redraw)
+  const drawKey = p.lines.map((r) => r.o.signature + r.kind).join(',');
+  const animate = drawKey !== lastDrawn; lastDrawn = drawKey;
   for (const r of p.lines) {
     const pos = segs(r.o); if (!pos.length) continue;
     const color = r.kind === 'before' ? '#64748b' : ROUTE_COLORS[r.kind];
     const style = p.all ? { color, weight: WEIGHT[r.kind], opacity: 0.9, dashArray: r.kind === 'backup' ? '10 8' : undefined }
       : r.kind === 'before' ? { color, weight: 6, opacity: 0.7, dashArray: '8 8' } : r.alt ? { color, weight: 5, opacity: 0.35, dashArray: r.kind === 'backup' ? '8 8' : undefined }
       : { color, weight: 8, opacity: 0.95, dashArray: r.kind === 'backup' ? '12 10' : undefined };
+    if (animate && (r.main || r.kind === 'balanced' && p.sim) && !style.dashArray) style.className = 'route-draw';
     L.polyline(pos, style).bindTooltip(r.kind === 'before' ? `<b>Usual route (before)</b><br>${esc(r.o.summary)}` : tip(r.o, r.kind, r.alt), { sticky: true, className: 'edge-tooltip' }).addTo(routes);
   }
   for (const id of cut) { const e = S.net.edges.find((x) => x.id === id); const a = e && hubById(e.from), b = e && hubById(e.to); if (inDhaka(a) && inDhaka(b)) L.polyline([[a.lat, a.lng], [b.lat, b.lng]], { color: '#dc2626', weight: 7, opacity: 0.95 }).addTo(routes); }
@@ -141,18 +145,18 @@ function draw() {
     m.bindTooltip(`<span class="hub-tooltip-content" style="--route-color:${col}">${st.origin ? '<span class="hub-badge badge-origin">A</span>' : ''}${st.dest ? '<span class="hub-badge badge-dest">B</span>' : ''}${st.onRoute && !st.origin && !st.dest ? '<span class="hub-badge badge-route">STOP</span>' : ''}<span class="hub-name">${esc(h.name)}</span>${st.blocked ? '<span class="hub-badge badge-blocked">⛔ Blocked</span>' : ''}</span>`,
       { permanent: true, direction: dir, offset: dir === 'left' ? [-14, 0] : dir === 'top' ? [0, -12] : dir === 'bottom' ? [0, 12] : [14, 0], className: `hub-tooltip${st.origin ? ' tt-origin' : ''}${st.dest ? ' tt-dest' : ''}${st.onRoute ? ' tt-route' : ''}${st.blocked ? ' tt-blocked' : ''}` });
     const note = h.landmarks && h.landmarks[0] ? h.landmarks[0].note_en : '';
-    m.bindPopup(`<div class="hub-popup-content"><div class="popup-header"><h4>${esc(h.name)} <small>${esc(h.bn || '')}</small></h4>${st.blocked ? '<span class="popup-badge-blocked">Blocked</span>' : ''}</div>${note ? `<p class="landmark">📍 ${esc(note)}</p>` : ''}<p class="landmark">Position approximate.</p>
+    m.bindPopup(`<div class="hub-popup-content"><div class="popup-header"><h4>${esc(h.name)} <small>${esc(h.bn || '')}</small></h4>${st.blocked ? '<span class="popup-badge-blocked">Blocked</span>' : ''}</div>${note ? `<p class="landmark">${ic('pin')} ${esc(note)}</p>` : ''}<p class="landmark">Position approximate.</p>
       <div class="popup-actions"><button type="button" class="btn-set-origin" data-set="origin" data-hub="${h.id}" ${$('#origin').value === h.id ? 'disabled' : ''}>${$('#origin').value === h.id ? '✓ Current Start (A)' : 'Set as Start (A)'}</button><button type="button" class="btn-set-dest" data-set="dest" data-hub="${h.id}" ${$('#destination').value === h.id ? 'disabled' : ''}>${$('#destination').value === h.id ? '✓ Current End (B)' : 'Set as Destination (B)'}</button></div></div>`, { className: 'hub-popup', offset: [0, -12] });
     m.addTo(net);
   }
   $('#lmap-hidden').textContent = hidden.length ? `⚠ ${hidden.length} hub(s) not shown (position missing or outside Dhaka): ${hidden.map((h) => h.name || h.id).join(', ')}` : '';
-  $('#lmap-all').textContent = viewAll ? '🎯 Focus route' : `🗺 Show all ${S.net.hubs.length - hidden.length} hubs`;
+  $('#lmap-all').innerHTML = viewAll ? `${ic('route')}<span>Focus route</span>` : `${ic('layers')}<span>Show all ${S.net.hubs.length - hidden.length} hubs</span>`;
   // fit only when what is shown changes (polling redraws every few seconds)
   // fit the route on display (KoyJabo behaviour); faded alternatives may run off-screen
   const shown = viewAll || (!p.focus && !p.all) ? S.net.hubs.filter(inDhaka).map((h) => [h.lat, h.lng]) : p.all || p.sim ? p.lines.flatMap((r) => segs(r.o).flat()) : segs(p.focus).flat();
   const key = viewAll ? 'all' : p.lines.map((r) => r.o.signature + r.kind).join(',') || 'none';
   if (key !== lastFit && shown.length && map.getSize().x > 0) { lastFit = key; const narrow = map.getSize().x < 520;   // phones: small padding so the route still fills the map
-    map.fitBounds(shown, narrow ? { paddingTopLeft: [72, 60], paddingBottomRight: [72, 30], maxZoom: 14, animate: false } : { paddingTopLeft: [110, 70], paddingBottomRight: [120, 50], maxZoom: 14, animate: false }); }   // no animation: a fit during a running zoom animation is otherwise dropped
+    map.fitBounds(shown, narrow ? { paddingTopLeft: [60, 112], paddingBottomRight: [60, 40], maxZoom: 14, animate: false } : { paddingTopLeft: [120, 90], paddingBottomRight: [120, 70], maxZoom: 14, animate: false }); }   // no animation: a fit during a running zoom animation is otherwise dropped
 }
 
 export function streetShown() { map && setTimeout(() => { map.invalidateSize(); lastFit = ''; drawStreet(); }, 0); }

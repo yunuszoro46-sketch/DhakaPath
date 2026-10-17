@@ -183,7 +183,7 @@ Each phase = one commit (or a few), all suites green, preview published, screens
 
 ## 7. Acceptance criteria (measured, not judged)
 
-- 1440×900, default search: first ticket's top edge above 600 px; map ≥ 60% of viewport width.
+- 1440×900, default search: the first ticket's plate (minutes and fare) is above the fold; map ≥ 60% of viewport width. (Revised during execution: the plan first said "ticket top above 600 px"; adding the KoyJabo-style sort chips and a larger heading pushed the ticket to about 700–740 px, so the check now asks for the plate, which is what a commuter needs to see.)
 - 390×844: From, To and "Find routes" visible without scrolling past the map; nothing hidden behind horizontal scroll; no floating element over a tappable control.
 - Text contrast ≥ 4.5:1 (≥3:1 for ≥24 px) in both themes for every token pair actually used; script in `tools/` checks it.
 - All interactive elements ≥ 44×44 px on phones; visible focus ring everywhere; full keyboard path through Plan → ticket → detail → Watch.

@@ -35,6 +35,7 @@ const nodeLogin = async () => (await (await fetch(BASE + 'api/admin/login', { me
     const fares = await page.$$eval('#search-out .opt .nums span:nth-child(2)', (e) => e.map((x) => x.textContent));
     ok(`${T} every option within ৳40`, fares.every((f) => Math.max(...f.replace(/[৳a-z\s]/g, '').split('–').map(Number)) <= 40), fares.join(','));
     // breakdown regular vs student and MRT no discount
+    await page.evaluate(() => { document.querySelector('#filters').open = true; });   // Night Route UI: these controls live under a disclosure
     await page.fill('#maxBudget', ''); await page.uncheck('#student'); await page.click('#plan-form button.primary');
     await page.waitForFunction(() => !/≤/.test(document.querySelector('#search-out').textContent));
     await page.click('#opts .opt:has(.tag:text("Fastest"))');
@@ -186,6 +187,7 @@ const nodeLogin = async () => (await (await fetch(BASE + 'api/admin/login', { me
     await page.click('#scenario-clear'); await page.waitForSelector('#scenario-banner[hidden]', { state: 'attached' });
     // zone simulation
     await page.click('[data-tab=sim]');
+    await page.evaluate(() => { document.querySelector('#sim-custom').open = true; });   // Night Route UI: these controls live under a disclosure
     await page.click('#zone-chips [data-z="central-south"]'); await page.click('#sim-run');
     await page.waitForFunction(() => /Custom scenario/.test(document.querySelector('#sim-out h2').textContent));
     ok(`${T} rain by zone runs`, /rain at Science Lab/.test(await page.textContent('#sim-out')));
@@ -203,6 +205,7 @@ const nodeLogin = async () => (await (await fetch(BASE + 'api/admin/login', { me
     await page.waitForFunction(() => /watch korchi/.test(document.querySelector('.msg.bot:last-child').textContent));
     await page.waitForSelector('#watch-panel:not([hidden])');
     ok(`${T} chat "ei trip watch koro" adds a watch`, /Mirpur → Motijheel/.test(await page.textContent('#watch-list')));
+    if (await page.isVisible('#chat-dock')) await page.click('#chat-close');   // the phone chat is full-screen; close it to reach the footer
     await page.click('#ground-test');
     await page.waitForFunction(() => /Rejected: not in network/.test(document.querySelector('.msg.bot:last-child').textContent));
     ok(`${T} hallucination test is rejected`, /unknown line "BUS99"/.test(await page.textContent('.msg.bot:last-child')));

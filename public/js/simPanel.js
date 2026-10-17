@@ -1,12 +1,12 @@
 // Simulation panel: presets, rain (light/heavy) by zone or hub, rush, blocked hubs, a line not running,
 // an admin delay -> before/after with broken segments, delta and whether the planned backup holds.
 // "Apply to the whole app" makes it the global scenario (fake weather / service status).
-import { $, $$, esc, rng, pills, busy, latest, retryable } from './util.js';
+import { $, $$, esc, rng, pills, ic, busy, latest, retryable } from './util.js';
 import { S, actions, hubName } from './store.js';
 import { post, put, del } from './api.js';
 
 const turn = latest();
-const EMPTY = '<p class="empty">Pick a preset or set your own conditions, then run the scenario to see the before / after comparison.</p>';
+const EMPTY = '<p class="empty"><svg class="ic" aria-hidden="true"><use href="#i-rain"/></svg>Pick a preset or set your own conditions, then run the scenario to see the before / after comparison.</p>';
 export async function runSim(scenario, btn) {
   const q = actions.query();
   if (q.origin === q.destination) { $('#sim-out').innerHTML = '<div class="note warn">Choose two different hubs on the Search tab.</div>'; return; }
@@ -29,14 +29,14 @@ export async function runSim(scenario, btn) {
   const card = (t, o, res) => `<div class="card"><h2>${t}</h2>${o ? `<div class="nums">${o.totalMinutes} min · ${rng(o.fareRangeLow, o.fareRangeHigh)} · ${o.transfers} transfer(s)</div>${pills(o)}<ol class="steps small">${o.legs.map((l) => `<li>${esc(l.instruction)}${l.reasons.length ? ` <span class="cond">⚠ ${esc(l.reasons.join(', '))}</span>` : ''}</li>`).join('')}</ol>` : `<div class="note bad">${esc(res.message || 'No open route.')}</div>`}</div>`;
   const dir = (n) => (n > 0 ? 'up' : n < 0 ? 'down' : '');
   const deltaTiles = dl ? `<div class="compare delta-tiles" aria-label="Change versus the usual route">
-      <div><span class="muted small">Time</span><b class="delta ${dir(dl.minutes)}">${sign(dl.minutes)} min</b></div>
-      <div><span class="muted small">Fare</span><b class="delta ${dir(dl.fareHigh)}">${dl.fareLow === dl.fareHigh ? sign(dl.fareLow) : sign(dl.fareLow) + ' to ' + sign(dl.fareHigh)} BDT</b></div>
-      <div><span class="muted small">Route</span><b>${d.changedRoute ? '↪ detour' : 'same route'}</b></div></div>` : '';
+      <div><span class="tile-k">${ic('timer')}Time</span><b class="delta ${dir(dl.minutes)}">${sign(dl.minutes)} min</b></div>
+      <div><span class="tile-k">${ic('budget')}Fare</span><b class="delta ${dir(dl.fareHigh)}">${dl.fareLow === dl.fareHigh ? sign(dl.fareLow) : sign(dl.fareLow) + ' to ' + sign(dl.fareHigh)} BDT</b></div>
+      <div><span class="tile-k">${ic('detour')}Route</span><b>${d.changedRoute ? '↪ detour' : 'same route'}</b></div></div>` : '';
   out.innerHTML = `<div class="card"><h2>${esc(d.label)}</h2><p>${esc(d.explanation)}</p>
     ${d.brokenSegments.length ? `<div class="note bad"><b>Affected segments of the usual route</b><ul style="margin:4px 0 0;padding-left:1.1rem">${d.brokenSegments.map((s) => `<li>${s.kind === 'broken' ? '✖' : '⏱'} ${esc(s.line)} ${esc(s.fromName)}–${esc(s.toName)}: ${esc(s.reason)}</li>`).join('')}</ul></div>` : '<div class="note ok">The usual route is not affected.</div>'}
-    ${d.backup ? `<div class="note ${d.backup.holds ? 'ok' : 'bad'}">🛟 Backup planned before the change (${esc(d.backup.option.summary)}): ${d.backup.holds ? `still works, ${d.backup.afterMinutes} min${d.backup.isNewMain ? ' — now the main route' : ''}` : `cut too (${esc(d.backup.brokenAt.reason)})`}.</div>` : ''}
+    ${d.backup ? `<div class="note ${d.backup.holds ? 'ok' : 'bad'}">${ic('backup')} Backup planned before the change (${esc(d.backup.option.summary)}): ${d.backup.holds ? `still works, ${d.backup.afterMinutes} min${d.backup.isNewMain ? ' — now the main route' : ''}` : `cut too (${esc(d.backup.brokenAt.reason)})`}.</div>` : ''}
     ${deltaTiles}
-    <div class="row tight" style="margin-top:10px"><button type="button" class="ghost small" id="sim-apply">🌧 Apply to the whole app</button><span class="muted small">Every search then runs under these conditions until you clear the banner.</span></div></div>
+    <div class="row tight" style="margin-top:12px"><button type="button" class="ghost small" id="sim-apply">${ic('rain')}Apply to the whole app</button><span class="muted small">Every search then runs under these conditions until you clear the banner.</span></div></div>
     <div class="simgrid">${card('Before', b, d.before)}${card('After', a, d.after)}</div>
     <p class="muted small">Simulated conditions, not live incidents. Map: red = cut segment, grey dashes = usual route, bold = new route, blue haze = rain. ${esc(d.notice)}</p>`;
   $('#sim-apply').onclick = () => applyScenario({ ...d.scenario, label: d.label });
@@ -52,7 +52,7 @@ export async function clearScenario() { const r = await del('/api/scenario'); if
 function renderChips() {
   const chip = (arr, id) => `<button type="button" class="chip" data-h="${id}" aria-pressed="${arr.includes(id)}">${esc(hubName(id))}</button>`;
   const zones = [...new Set(S.net.hubs.map((h) => h.zone))];
-  $('#zone-chips').innerHTML = zones.map((z) => `<button type="button" class="chip" data-z="${z}" aria-pressed="${S.zones.includes(z)}">🌧 ${esc(z)}</button>`).join('');
+  $('#zone-chips').innerHTML = zones.map((z) => `<button type="button" class="chip" data-z="${z}" aria-pressed="${S.zones.includes(z)}">${ic('rain')}${esc(z)}</button>`).join('');
   $$('#zone-chips [data-z]').forEach((b) => b.onclick = () => { const z = b.dataset.z; S.zones = S.zones.includes(z) ? S.zones.filter((x) => x !== z) : [...S.zones, z]; b.setAttribute('aria-pressed', String(S.zones.includes(z))); });
   $('#rain-chips').innerHTML = S.net.hubs.map((h) => chip(S.rain, h.id)).join('');
   $('#block-chips').innerHTML = S.net.hubs.map((h) => chip(S.blocked, h.id)).join('');
@@ -63,7 +63,7 @@ function renderChips() {
 export function initSim() {
   actions.runSim = runSim; actions.clearScenario = clearScenario;
   renderChips();
-  $('#sim-presets').innerHTML = Object.entries(S.net.presets).map(([k, p]) => `<button type="button" class="chip on" data-p="${k}">${esc(p.label)}</button>`).join('');
+  $('#sim-presets').innerHTML = Object.entries(S.net.presets).map(([k, p]) => `<button type="button" class="chip on" data-p="${k}">${ic(/Down$/.test(k) ? 'blocked' : /Delay$/.test(k) ? 'timer' : k === 'rush' ? 'rush' : 'rain')}${esc(p.label)}</button>`).join('');
   $$('#sim-presets [data-p]').forEach((b) => b.onclick = () => runSim(b.dataset.p, b));
   const svc = S.net.lines.filter((l) => ['bus', 'metro', 'leguna'].includes(l.mode)).map((l) => `<option value="${l.id}">${esc(l.mode === 'metro' ? 'MRT-6' : l.name)}</option>`).join('');
   $('#sim-down').insertAdjacentHTML('beforeend', svc); $('#sim-delay-line').insertAdjacentHTML('beforeend', svc);

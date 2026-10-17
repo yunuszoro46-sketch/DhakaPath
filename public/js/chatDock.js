@@ -1,5 +1,5 @@
 // Chat dock (persistent across tabs): messages, Verified badge, tool-call chips, AI mode.
-import { $, $$, esc } from './util.js';
+import { $, $$, esc, ic } from './util.js';
 import { S, actions } from './store.js';
 import { post, currentUser } from './api.js';
 
@@ -29,12 +29,13 @@ export async function sendChat(text) {
   if (d.intent === 'watch_trip') actions.refreshWatches();
 }
 
-export function openChat(open) { $('#chat-dock').hidden = !open; $('#chat-toggle').setAttribute('aria-expanded', String(open)); $('#chat-toggle').textContent = open ? 'Close chat' : 'Chat'; if (open) $('#chat-in').focus(); }
+export function openChat(open) { $('#chat-dock').hidden = !open; $('#chat-toggle').setAttribute('aria-expanded', String(open)); $('#chat-toggle').innerHTML = `${ic(open ? 'close' : 'chat')}<span class="tl">${open ? 'Close chat' : 'Chat'}</span>`; $('#chat-toggle').setAttribute('aria-label', open ? 'Close chat' : 'Open chat'); if (open) $('#chat-in').focus(); }
 
 export function initChat() {
   actions.openChat = openChat; actions.addMsg = add;
   $('#chat-toggle').onclick = () => openChat($('#chat-dock').hidden);
   $('#chat-close').onclick = () => openChat(false);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#chat-dock').hidden) { openChat(false); $('#chat-toggle').focus(); } });
   $('#chat-form').addEventListener('submit', (e) => { e.preventDefault(); sendChat($('#chat-in').value); });
   const sugg = ['Dhanmondi theke Motijheel, student', 'ar kono option?', 'why not metro?', 'student hole?', 'Farmgate bondho, onno route?', 'what if Science Lab e brishti hoy?', 'conductor 40 chaise Farmgate theke Motijheel, thik ache?', 'Science Lab e pani jome gese', 'ei alert ta ki still thik?', 'student half-fare ki metro te hoy?', 'ei trip watch koro'];
   $('#chat-suggest').innerHTML = sugg.map((s) => `<button type="button" class="chip">${esc(s)}</button>`).join('');

@@ -7,32 +7,35 @@
 .bar                               <- check11-ui.cjs
 .bt-line                           <- check9.cjs
 .btn-set-origin                    <- check6.cjs
-.card                              <- check11-ui.cjs, check4.cjs
+.card                              <- check4.cjs
 .chip                              <- alertsPanel.js, chatDock.js, simPanel.js
 .delta-tiles                       <- check11-ui.cjs
 .fare-src                          <- check9.cjs
 .hub-popup                         <- check6.cjs
 .leaflet-marker-icon               <- check6.cjs
 .leaflet-tooltip                   <- check6.cjs
-.map-card                          <- check11-ui.cjs
+.map-col                           <- check11-ui.cjs
 .map-label                         <- check5.cjs
 .mic                               <- check9.cjs, voice.js
-.mpill                             <- check6.cjs
+.modes                             <- check11-ui.cjs
+.mpill                             <- check11-ui.cjs, check6.cjs
 .msg                               <- check3.cjs, check8.cjs, check9.cjs, static2.cjs
 .note                              <- check3.cjs
 .nums                              <- check11-ui.cjs, check3.cjs, check4.cjs
 .opt                               <- check11-ui.cjs, check3.cjs, check4.cjs, check5.cjs, check6.cjs, check7.cjs, check8.cjs, check9.cjs, searchPanel.js, shots.cjs, static2.cjs
-.panel-col                         <- check11-ui.cjs
+.panel-col                         <- check11-ui.cjs, main.js
+.pill                              <- check11-ui.cjs
 .pills                             <- check6.cjs
-.pref-btn                          <- check6.cjs, mapControls.js
+.pref-btn                          <- check11-ui.cjs, check6.cjs, mapControls.js
 .repeat                            <- fuzz.mjs
 .row                               <- check4.cjs
 .simgrid                           <- check11-ui.cjs, check3.cjs, shots.cjs, static2.cjs
 .status                            <- check3.cjs
 .steps                             <- check3.cjs
 .tabpanel                          <- main.js
-.tabs                              <- check11-ui.cjs, main.js
+.tabs                              <- check11-ui.cjs
 .tag                               <- check3.cjs, check4.cjs, check6.cjs
+.top                               <- check11-ui.cjs
 .vlang                             <- check9.cjs, voice.js
 .watch-item                        <- check3.cjs, static2.cjs
 .wstatus                           <- check3.cjs
@@ -50,7 +53,7 @@
 [data-share]                       <- check8.cjs
 [data-sjoin]                       <- check8.cjs, sharePanel.js
 [data-sleave]                      <- check8.cjs, sharePanel.js
-[data-tab]                         <- check11-ui.cjs, check3.cjs, check4.cjs, check6.cjs, check7.cjs, check8.cjs, shots.cjs, static2.cjs
+[data-tab]                         <- check11-ui.cjs, check3.cjs, check4.cjs, check6.cjs, check7.cjs, check8.cjs, main.js, shots.cjs, static2.cjs
 [data-waccept]                     <- check3.cjs, watchPanel.js
 [data-wdel]                        <- check3.cjs, watchPanel.js
 [data-wsay]                        <- watchPanel.js
@@ -82,7 +85,7 @@
 #card-dl                           <- offlineCard.js
 #card-img                          <- check3.cjs, offlineCard.js
 #chat-close                        <- chatDock.js, check3.cjs, check8.cjs, check9.cjs, static2.cjs
-#chat-dock                         <- chatDock.js
+#chat-dock                         <- chatDock.js, check11-ui.cjs, check3.cjs
 #chat-form                         <- chatDock.js, check9.cjs, voice.js
 #chat-in                           <- chatDock.js, check3.cjs, check8.cjs, static2.cjs, voice.js
 #chat-log                          <- check8.cjs, check9.cjs
@@ -117,13 +120,16 @@
 #fc-out                            <- check11-ui.cjs, check3.cjs, fareBreakdown.js
 #fff                               <- offlineCard.js
 #filter-sum                        <- searchPanel.js
-#filters                           <- check3.cjs
+#filters                           <- check3.cjs, check4.cjs, check5.cjs, searchPanel.js
 #ground-test                       <- chatDock.js, check3.cjs
 #hb-bn                             <- adminPanel.js
 #hb-en                             <- adminPanel.js
 #hb-errors                         <- adminPanel.js, check3.cjs
 #hb-id                             <- adminPanel.js, check3.cjs
 #hub-form                          <- adminPanel.js, check3.cjs
+#i-                                <- util.js
+#i-mic                             <- voice.js
+#i-rain                            <- simPanel.js
 #ingest-examples                   <- alertsPanel.js
 #ingest-form                       <- alertsPanel.js, check11-ui.cjs
 #ingest-in                         <- alertsPanel.js, check11-ui.cjs, check3.cjs, static2.cjs
@@ -154,11 +160,12 @@
 #net-lines                         <- check3.cjs, networkPanel.js, static2.cjs
 #net-modes                         <- networkPanel.js
 #net-retry                         <- check5.cjs, main.js
+#net-stats                         <- networkPanel.js
 #net-updated                       <- networkPanel.js
 #new-me                            <- alertsPanel.js, check3.cjs
 #nl-form                           <- check9.cjs, searchPanel.js, voice.js
 #nl-in                             <- check3.cjs, check7.cjs, searchPanel.js, voice.js
-#opts                              <- check11-ui.cjs, check3.cjs, check4.cjs, check5.cjs, check6.cjs, check7.cjs, check8.cjs, check9.cjs, shots.cjs, static2.cjs
+#opts                              <- check11-ui.cjs, check3.cjs, check4.cjs, check5.cjs, check6.cjs, check7.cjs, check8.cjs, check9.cjs, searchPanel.js, shots.cjs, static2.cjs
 #origin                            <- check11-ui.cjs, check3.cjs, check4.cjs, check6.cjs, check7.cjs, check8.cjs, check9.cjs, fareBreakdown.js, main.js, map.js, searchPanel.js, streetMap.js, watchPanel.js
 #plan-form                         <- check11-ui.cjs, check3.cjs, check4.cjs, check5.cjs, check6.cjs, check7.cjs, check8.cjs, check9.cjs, searchPanel.js, static2.cjs
 #queue                             <- adminPanel.js, check3.cjs
@@ -182,6 +189,7 @@
 #share-form                        <- sharePanel.js
 #sim-apply                         <- check3.cjs, check4.cjs, check7.cjs, simPanel.js
 #sim-clear                         <- check11-ui.cjs, check3.cjs, check4.cjs, shots.cjs, simPanel.js
+#sim-custom                        <- check3.cjs, check4.cjs
 #sim-delay-line                    <- check4.cjs, simPanel.js
 #sim-delay-min                     <- simPanel.js
 #sim-delay-rate                    <- simPanel.js
@@ -196,7 +204,7 @@
 #singleMode                        <- check6.cjs, searchPanel.js
 #street-wrap                       <- mapControls.js
 #student                           <- check4.cjs, check6.cjs, fareBreakdown.js, main.js, searchPanel.js
-#swap                              <- searchPanel.js
+#swap                              <- check11-ui.cjs, searchPanel.js
 #t-close                           <- check3.cjs, watchPanel.js
 #t-say                             <- watchPanel.js
 #t-show                            <- check3.cjs, watchPanel.js

@@ -24,7 +24,7 @@ export const voiceSupported = () => !!Rec;
 function attach(form, input) {
   const send = form.querySelector('button[type=submit]');
   const wrap = document.createElement('span'); wrap.className = 'voice';
-  wrap.innerHTML = `<button type="button" class="ghost mic" aria-label="Speak your trip" title="${Rec ? 'Speak your trip (browser speech recognition)' : 'Voice input is not supported in this browser'}" aria-pressed="false">🎤</button><button type="button" class="ghost vlang" aria-label="Voice language"></button>`;
+  wrap.innerHTML = `<button type="button" class="ghost mic" aria-label="Speak your trip" title="${Rec ? 'Speak your trip (browser speech recognition)' : 'Voice input is not supported in this browser'}" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-mic"/></svg></button><button type="button" class="ghost vlang" aria-label="Voice language"></button>`;
   form.insertBefore(wrap, send);
   const status = document.createElement('div'); status.className = 'voice-status muted small'; status.setAttribute('aria-live', 'polite'); status.hidden = true;
   form.insertAdjacentElement('afterend', status);
@@ -47,7 +47,7 @@ function attach(form, input) {
     active = { rec, form };
     mic.setAttribute('aria-pressed', 'true'); mic.classList.add('listening');
     input.placeholder = lang === 'bn-BD' ? 'শুনছি… (যেমন: মিরপুর থেকে মতিঝিল, ছাত্র)' : 'Listening… (e.g. Mirpur to Motijheel, student)';
-    say(`Listening in ${LANGS[lang].name}… tap 🎤 again to finish.`);
+    say(`Listening in ${LANGS[lang].name}… tap the mic again to finish.`);
     rec.onresult = (e) => {
       let interim = '';
       for (let i = e.resultIndex; i < e.results.length; i++) { const t = e.results[i][0].transcript; if (e.results[i].isFinal) finalText += t; else interim += t; }

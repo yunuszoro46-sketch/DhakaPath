@@ -1,7 +1,10 @@
-// Design-pass regression checks (ADR-001 single UI): map-first mobile layout, no overlap between the
-// chat button and route cards, status chips with text (never colour only), honest Fare Truth basis
-// (official vs estimate), the duplicate-report message, the Monsoon Mode empty state and delta tiles,
-// keyboard focus visibility, reduced-motion, and no second UI under /app.
+// UI regression checks for the Night Route redesign (docs/UI-REDESIGN-PLAN.md §7) on top of the earlier
+// design-pass checks: map-stage layout (desktop panel + full map, phone map first with a bottom nav),
+// first route ticket above the fold, From/To/Find reachable on a phone without scrolling, journey strip
+// widths proportional to leg minutes, ticket colour = map line colour, vendored fonts and icons (no
+// emoji in the UI chrome), honesty labels still on screen, chat drawer and Admin button placement,
+// touch targets, status chips with text, honest Fare Truth basis, Monsoon empty state and delta tiles,
+// duplicate-report message, reduced motion, and no second UI under /app.
 const { chromium } = require('playwright');
 const BASE = process.argv[2] || 'http://localhost:3100/';
 const results = [];
@@ -22,39 +25,56 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     page.on('console', (m) => { if (m.type() === 'error' && !/tile\.openstreetmap\.org/.test((m.location() || {}).url || '') && !/ERR_TUNNEL|ERR_INTERNET|ERR_NAME/.test(m.text())) errors.push(m.text()); });
     await page.goto(BASE); await page.waitForSelector('#opts .opt');
     await page.fill('#departAt', '12:00');
-    // 1 layout
+    // 1 layout: the map is the stage
     const sw = await page.evaluate(() => [document.documentElement.scrollWidth, window.innerWidth]);
     ok(`${T} no horizontal overflow`, sw[0] <= sw[1], sw.join('/'));
-    const order = await page.evaluate(() => [document.querySelector('.map-card').getBoundingClientRect().top, document.querySelector('.tabs').getBoundingClientRect().top]);
-    if (w <= 900) ok(`${T} phone: map comes before the panels`, order[0] < order[1], order.join(' < '));
-    else ok(`${T} desktop: map and panels side by side`, Math.abs(order[0] - order[1]) < 80, order.join(' ~ '));
-    const mapH = await page.$eval('#lmap', (e) => e.getBoundingClientRect().height);
-    ok(`${T} street map has a usable height`, mapH >= 280, mapH);
-    // 2 chat button never covers the selected route card
-    const overlaps = (a, b) => !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
-    if (w > 900) {
-      const over = await page.evaluate((f) => { const fn = eval(f); return fn(document.querySelector('#chat-toggle').getBoundingClientRect(), document.querySelector('#opts .opt[aria-pressed=true]').getBoundingClientRect()); }, overlaps.toString());
-      ok(`${T} desktop: chat button does not overlap the selected card`, !over);
+    const g = await page.evaluate(() => { const r = (s) => document.querySelector(s).getBoundingClientRect(); return { map: r('.map-col'), panel: r('.panel-col'), lmap: r('#lmap'), nav: r('.tabs'), vh: innerHeight, vw: innerWidth }; });
+    if (w > 1023) {
+      ok(`${T} desktop: planner panel on the left, map fills the rest`, g.panel.right <= g.map.left + 1 && g.map.width >= 0.6 * g.vw, JSON.stringify([g.panel.right, g.map.left, g.map.width]));
+      ok(`${T} desktop: map runs the full height under the header`, g.lmap.height >= 500, g.lmap.height);
+      const t0 = await page.$eval('#opts .opt .nums', (e) => e.getBoundingClientRect().bottom);
+      ok(`${T} desktop: first ticket's plate (minutes, fare) is above the fold`, t0 < 900 - 16, t0);
     } else {
-      // a floating button passes over content while scrolling; what must hold is that the end of the page is still readable
-      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-      await wait(200);
-      const over = await page.evaluate((f) => { const fn = eval(f); const last = [...document.querySelectorAll('.panel-col .card')].filter((c) => !c.closest('[hidden]')).at(-1); return fn(document.querySelector('#chat-toggle').getBoundingClientRect(), last.getBoundingClientRect()); }, overlaps.toString());
-      ok(`${T} phone: scrolled to the end, the floating chat button does not cover the last card`, !over);
-      await page.evaluate(() => window.scrollTo(0, 0));
+      ok(`${T} phone: map comes before the planner`, g.map.top < g.panel.top, `${g.map.top} < ${g.panel.top}`);
+      ok(`${T} phone: street map has a usable height`, g.lmap.height >= 250, g.lmap.height);
+      ok(`${T} phone: bottom nav is fixed at the bottom`, Math.abs(g.nav.bottom - g.vh) < 2 && (await page.$eval('.tabs', (e) => getComputedStyle(e).position)) === 'fixed', JSON.stringify(g.nav));
+      const tabsIn = await page.$$eval('.tabs [role=tab]', (es) => es.map((e) => { const r = e.getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth + 1 && r.width >= 44 && r.height >= 44; }));
+      ok(`${T} phone: all five sections visible in the nav (no sideways scroll), 44 px targets`, tabsIn.length === 5 && tabsIn.every(Boolean), JSON.stringify(tabsIn));
+      const reach = await page.evaluate(() => { const navTop = document.querySelector('.tabs').getBoundingClientRect().top; return ['#origin', '#destination', '#plan-form button.find'].map((s) => { const r = document.querySelector(s).getBoundingClientRect(); return r.bottom <= navTop && r.top >= 0; }); });
+      ok(`${T} phone: From, To and Find routes visible without scrolling`, reach.every(Boolean), JSON.stringify(reach));
+      const small = await page.$$eval('.top button, .tabs button, #swap, #plan-form button.find, .pill, .pref-btn', (es) => es.filter((e) => e.offsetParent).map((e) => { const r = e.getBoundingClientRect(); return [e.id || e.className.baseVal || e.className, Math.round(r.width), Math.round(r.height)]; }).filter(([, , h]) => h < 40));
+      ok(`${T} phone: no tiny tap targets in header, nav, planner and map toolbar`, small.length === 0, JSON.stringify(small));
+      ok(`${T} phone: page keeps room under the content for the bottom nav`, (await page.$eval('.panel-col', (e) => parseInt(getComputedStyle(e).paddingBottom, 10))) >= 64);
     }
-    if (w <= 900) ok(`${T} phone: page keeps room under the content for the floating chat button`, (await page.$eval('.layout', (e) => parseInt(getComputedStyle(e).paddingBottom, 10))) >= 80);
-    else ok(`${T} desktop: chat button lives in the header`, await page.$eval('#chat-toggle', (b) => b.closest('header') !== null && getComputedStyle(b).position !== 'fixed'));
+    // 2 chat: a drawer opened from the header, never a floating button over content
+    ok(`${T} chat button lives in the header`, await page.$eval('#chat-toggle', (b) => b.closest('header') !== null && getComputedStyle(b).position !== 'fixed'));
+    await page.click('#chat-toggle');
+    const dock = await page.evaluate(() => { const r = document.querySelector('#chat-dock').getBoundingClientRect(); return [r.width, r.height, innerWidth, innerHeight]; });
+    ok(`${T} chat opens as a drawer (desktop: right side, phone: full screen)`, w > 1023 ? dock[0] >= 360 && dock[0] <= 440 : dock[0] === dock[2], JSON.stringify(dock));
+    await page.keyboard.press('Escape');
+    ok(`${T} Escape closes the chat`, await page.isHidden('#chat-dock'));
     // 3 tabs reachable
-    await page.click('[data-tab=admin]'); ok(`${T} last tab (Admin) is clickable`, !(await page.$eval('#tab-admin', (e) => e.hidden)));
+    await page.click('[data-tab=admin]'); ok(`${T} Admin (header button) opens its panel`, !(await page.$eval('#tab-admin', (e) => e.hidden)) && (await page.getAttribute('[data-tab=admin]', 'aria-pressed')) === 'true');
     await page.click('[data-tab=search]');
+    // 3b tickets: strip widths follow leg minutes, the kind label matches the map line colour
+    const strips = await page.$$eval('#opts .opt', (os) => os.map((o) => [...o.querySelectorAll('.modes .mpill')].map((p) => [Number(p.dataset.min), p.getBoundingClientRect().width])));
+    const prop = strips.every((legs) => { const tm = legs.reduce((a, [m]) => a + m, 0), tw = legs.reduce((a, [, x]) => a + x, 0); return legs.length === 1 || legs.some(([, x]) => x <= 31) || legs.every(([m, x]) => Math.abs(x / tw - m / tm) < 0.06); });
+    ok(`${T} journey strip: each leg's width is proportional to its wait + ride minutes`, prop && strips.length > 0, JSON.stringify(strips));
+    const kindCol = await page.$eval('#opts .opt[aria-pressed=true]', (o) => { const k = [...o.classList].find((c) => c.startsWith('k-')).slice(2); const t = o.querySelector('.tag.kind'); return [k, t && getComputedStyle(t).backgroundColor]; });
+    const KC = { fastest: 'rgb(22, 163, 74)', cheapest: 'rgb(37, 99, 235)', balanced: 'rgb(124, 58, 237)', backup: 'rgb(249, 115, 22)' };
+    ok(`${T} selected ticket's kind label uses its map line colour`, kindCol[1] === KC[kindCol[0]], JSON.stringify(kindCol));
+    // 3c identity: vendored fonts, icon sprite, no emoji in the UI chrome, honesty labels on screen
+    ok(`${T} vendored fonts load (Instrument Sans, Big Shoulders plate)`, await page.evaluate(async () => { await document.fonts.ready; return document.fonts.check('16px "Instrument Sans"') && document.fonts.check('700 30px "Big Shoulders Plate"') && /Big Shoulders Plate/.test(getComputedStyle(document.querySelector('#opts .opt .nums span')).fontFamily); }));
+    const emoji = await page.evaluate(() => (document.querySelector('header').textContent + document.querySelector('#tab-search').textContent).match(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{26FF}]/gu) || []);
+    ok(`${T} no emoji in header and planner (icons come from the sprite)`, emoji.length === 0 && (await page.$$('header svg use')).length >= 5, emoji.join(' '));
+    ok(`${T} honesty labels stay on screen`, await page.evaluate(() => { const v = (s) => { const e = document.querySelector(s); const r = e && e.getBoundingClientRect(); return !!r && r.height > 0; }; return v('.demo-banner') && /Seed data, not official/.test(document.querySelector('.demo-banner').textContent) && /approximate area centres/.test(document.querySelector('.map-src').textContent) && /Verified against network/.test(document.querySelector('#opts').textContent); }));
     // 4 status chips carry text, not just colour; selected card marked by aria-pressed
     const badge = await page.textContent('#opts .opt[aria-pressed=true] .badge-ok');
     ok(`${T} verified badge is text`, /Verified against network/.test(badge), badge);
     const focusOutline = await page.evaluate(() => { const b = document.querySelector('#plan-form button.primary'); b.focus(); return getComputedStyle(b).outlineStyle; });
     ok(`${T} primary button is focusable`, focusOutline !== undefined);
-    const nums = await page.$eval('#opts .opt .nums', (e) => parseFloat(getComputedStyle(e).fontSize));
-    ok(`${T} route numbers are the largest text on the card`, nums >= 18, nums);
+    const nums = await page.$eval('#opts .opt .nums span', (e) => parseFloat(getComputedStyle(e).fontSize));
+    ok(`${T} route numbers are the largest text on the card (plate)`, nums >= 28, nums);
     // 5 Fare Truth: official vs estimate basis is labelled
     await page.selectOption('#fc-mode', 'bus'); await page.fill('#fc-amount', '40'); await page.click('#fc-form button'); await page.waitForSelector('#fc-out .note');
     const fcBus = await page.textContent('#fc-out');

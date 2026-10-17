@@ -1,7 +1,7 @@
 // Selected route: steps with landmark notes (English / Banglish), per-leg fare table (regular vs
 // student, baseline vs surge), alerts, trust "why" lines, Watch / read aloud / offline card. Also
 // the Fare Truth form.
-import { $, $$, esc, rng, taka, MODE_NAME, RANGE } from './util.js';
+import { $, $$, esc, rng, taka, ic, MODE_NAME, RANGE } from './util.js';
 import { S, actions } from './store.js';
 import { post } from './api.js';
 import { offlineCard } from './offlineCard.js';
@@ -25,13 +25,13 @@ export function renderDetail() {
   const r = S.result.data;
   const rows = o.legs.map((l) => `<tr><td><span class="mpill ${l.mode}">${MODE_NAME[l.mode]}</span> ${esc(l.line)}<br><span class="small muted">${esc(l.fromName)} → ${esc(l.toName)}</span></td><td class="num">${l.km}</td>
     <td class="num">${l.fare.unknown ? 'unknown' : RANGE(l.mode) ? rng(l.fare.rangeLow, l.fare.rangeHigh) : taka(l.fare.regular)}</td><td class="num">${l.fare.unknown ? 'unknown' : RANGE(l.mode) ? rng(l.fare.rangeLow, l.fare.rangeHigh) : taka(l.fare.student)}</td>
-    <td class="small">${l.mode === 'walk' ? '—' : l.fare.studentApplies ? '<span style="color:var(--ok)">student discount applies</span>' : 'does not apply'}${RANGE(l.mode) ? `<br>baseline ${rng(l.fare.baseLow, l.fare.baseHigh)}${l.fare.surge !== 1 ? ` → <b style="color:var(--warn)">surge ×${l.fare.surge}: ${rng(l.fare.rangeLow, l.fare.rangeHigh)}</b>` : ' (no surge now)'}<br><button type="button" class="linkish small" data-share="${l.from}|${l.to}|${l.mode}">👥 Share this ${l.mode === 'cng' ? 'CNG' : 'rickshaw'} and split the fare</button>` : ''}</td></tr>`).join('');
+    <td class="small">${l.mode === 'walk' ? '—' : l.fare.studentApplies ? '<span style="color:var(--ok)">student discount applies</span>' : 'does not apply'}${RANGE(l.mode) ? `<br>baseline ${rng(l.fare.baseLow, l.fare.baseHigh)}${l.fare.surge !== 1 ? ` → <b style="color:var(--warn)">surge ×${l.fare.surge}: ${rng(l.fare.rangeLow, l.fare.rangeHigh)}</b>` : ' (no surge now)'}<br><button type="button" class="linkish small" data-share="${l.from}|${l.to}|${l.mode}">${ic('share')} Share this ${l.mode === 'cng' ? 'CNG' : 'rickshaw'} and split the fare</button>` : ''}</td></tr>`).join('');
   const al = (r.alerts || []).filter((a) => o.legs.some((l) => l.stops.includes(a.hubId)));
   const reg = sumRange(o, false), stu = sumRange(o, true);
   d.innerHTML = `<h3>Step by step <span class="langswitch" role="group" aria-label="Directions language"><button type="button" data-lang="en" aria-pressed="${S.lang === 'en'}">English</button><button type="button" data-lang="bn" aria-pressed="${S.lang === 'bn'}">Banglish</button></span></h3>
     <ol class="steps">${o.legs.map((l) => `<li>${esc(S.lang === 'bn' ? l.instructionBn : l.instruction)}
-      ${l.landmark ? `<span class="lm">📍 ${esc(S.lang === 'bn' && l.landmark.note_bn_banglish ? l.landmark.note_bn_banglish : l.landmark.note_en)}${l.landmark.sample ? '<span class="sample">sample note</span>' : ''}</span>` : ''}
-      ${l.boardingNote ? `<span class="lm">ℹ ${esc(l.boardingNote)}</span>` : ''}</li>`).join('')}</ol>
+      ${l.landmark ? `<span class="lm">${ic('pin')}<span>${esc(S.lang === 'bn' && l.landmark.note_bn_banglish ? l.landmark.note_bn_banglish : l.landmark.note_en)}${l.landmark.sample ? '<span class="sample">sample note</span>' : ''}</span></span>` : ''}
+      ${l.boardingNote ? `<span class="lm">${ic('info')}<span>${esc(l.boardingNote)}</span></span>` : ''}</li>`).join('')}</ol>
     ${o.transferWalkMinutes ? `<p class="muted small">Includes ${o.transferWalkMinutes} min of transfer walking.</p>` : ''}
     ${o.warnings.length ? `<ul class="warnlist">${o.warnings.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` : ''}
     <h3>Why this route</h3><ul class="whylist">${(o.why || []).map((w) => `<li class="${w.kind}">${esc(w.text)}</li>`).join('')}</ul>
@@ -41,7 +41,7 @@ export function renderDetail() {
     <p class="muted small">Ranking cost uses the rickshaw/CNG midpoint: regular ≈${taka(o.totalFareRegular)}, student ≈${taka(o.totalFareStudent)}.${S.result && S.result.ok && S.result.data.fareTable ? ` Fare table v${S.result.data.fareTable.version}${S.result.data.fareTable.effectiveFrom ? `, updated ${new Date(S.result.data.fareTable.effectiveFrom).toLocaleDateString('en-GB', { timeZone: 'Asia/Dhaka', day: 'numeric', month: 'short' })}` : ' (seed)'}.` : ''}${o.fareUnknown ? ' <b>Part of this route has no fare data; the total is incomplete.</b>' : ''}</p>
     ${fareSources(o, r)}
     ${al.length ? `<h3>Alerts on this route</h3>${al.map((a) => `<div class="small"><span class="status ${a.status}">${a.status}</span> <b>${esc(a.placeName)}</b> ${esc(a.type)} · confidence ${a.effectiveConfidence} · ${a.ageMinutes} min old · ${esc(a.routingEffect)}</div>`).join('')}` : '<div class="note ok">No open alerts on this route.</div>'}
-    <div class="row" style="margin-top:12px"><button type="button" class="primary" id="watch-btn">👁 Watch this trip</button><button type="button" class="ghost" id="brief-say">🔊 Read aloud</button><button type="button" class="ghost" id="brief-card">Offline card (PNG)</button><button type="button" class="ghost" id="bt-btn">⏰ Best time to leave</button></div>
+    <div class="actionbar"><button type="button" class="primary" id="watch-btn">${ic('watch')}Watch this trip</button><button type="button" class="ghost" id="bt-btn">${ic('alarm')}Best time to leave</button><button type="button" class="ghost" id="brief-say">${ic('speak')}Read aloud</button><button type="button" class="ghost" id="brief-card">${ic('download')}Offline card (PNG)</button></div>
     <div id="bt-out" class="bt-out" aria-live="polite"></div>
     <p class="muted small" style="margin-top:0">Trip Watch re-checks this trip and warns you, with a detour, when a confirmed alert or rush hour hits it.</p>
     <p class="muted small">${esc(r.notice)}</p>`;
@@ -67,7 +67,7 @@ async function fareCheck(ev) {
   const src = d.fareTable && d.fareTable.sources && d.fareTable.sources[d.mode];
   const basis = src ? (src.official ? `<span class="badge-ok">official rate</span> ${esc(src.short)}${src.url ? ` · <a href="${esc(src.url)}" target="_blank" rel="noopener">source</a>` : ''}` : `<span class="badge-est">team estimate</span> ${esc(src.short)}. The verdict compares against that estimate, not an official chart.`) : '';
   $('#fc-out').innerHTML = `<div class="note ${cls}"><b>${esc({ fair: 'Fair', below: 'Below usual', slightly_high: 'Slightly high', overcharge: 'Overcharge' }[d.verdict] || '')}</b>${src && !src.official ? ' <span class="small">(against the estimated range)</span>' : ''}: ${esc(d.text)} ${esc(d.studentNote)}${d.submission.flags.length ? ' This amount is flagged as unrealistic (S1) and not counted in stats.' : ''}</div>
-    <p class="small">💬 Say to the conductor: <b>“${esc(d.script)}”</b> ${d.scriptBy === 'ai' ? '<span class="muted">(phrased by AI, numbers checked)</span>' : ''}</p>
+    <p class="small">${ic('chat')} Say to the conductor: <b>“${esc(d.script)}”</b> ${d.scriptBy === 'ai' ? '<span class="muted">(phrased by AI, numbers checked)</span>' : ''}</p>
     ${basis ? `<p class="small">${basis}</p>` : ''}
     <p class="muted small">Community reports for this trip and mode under the current fare table: ${d.community.reports}${d.community.median != null ? `, median ৳${d.community.median}` : ''}.</p>`;
   actions.refreshAll();

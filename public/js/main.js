@@ -1,5 +1,5 @@
 // Bootstraps the panels, tabs, theme and the 3-second polling loop (alerts + clock + watched trips).
-import { $, $$, esc, store } from './util.js';
+import { $, $$, esc, store, ic } from './util.js';
 import { S, actions } from './store.js';
 import { connect, get, onConnection } from './api.js';
 import { drawMap } from './map.js';
@@ -42,7 +42,7 @@ function renderScenario() {
   const on = sc && (sc.rain.length || sc.blocked.length || typeof sc.rush === 'boolean' || dl.length || dy.length || (sc.blockedEdges || []).length);
   el.hidden = !on;
   if (on) {
-    el.innerHTML = `🌧 <b>Scenario active for the whole app:</b> ${esc(sc.label || '')} ${[sc.rain.length && (sc.rainSeverity === 'heavy' ? 'heavy rain at ' : 'rain at ') + sc.rain.join(', '), sc.blocked.length && 'blocked ' + sc.blocked.join(', '), sc.rush === true && 'rush hour',
+    el.innerHTML = `${ic('rain')} <b>Scenario active for the whole app:</b> ${esc(sc.label || '')} ${[sc.rain.length && (sc.rainSeverity === 'heavy' ? 'heavy rain at ' : 'rain at ') + sc.rain.join(', '), sc.blocked.length && 'blocked ' + sc.blocked.join(', '), sc.rush === true && 'rush hour',
       dl.length && 'not running: ' + dl.join(', '), dy.length && 'delayed: ' + dy.map((x) => `${x.line || x.edgeId || x.hub}${x.until ? ' (until ' + new Date(x.until).toLocaleTimeString('en-GB', { timeZone: 'Asia/Dhaka', hour: '2-digit', minute: '2-digit' }) + ')' : ''}`).join(', ')].filter(Boolean).map(esc).join(' · ')} <button type="button" class="ghost small" id="scenario-clear">Clear</button>`;
     $('#scenario-clear').onclick = () => actions.clearScenario();
   }
@@ -56,8 +56,10 @@ async function refreshAll() {
 }
 
 function showTab(name) {
-  $$('.tabs [role=tab]').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.tab === name)));
+  // section buttons: the five tabs (role=tab) and the Admin button in the header (aria-pressed)
+  $$('[data-tab]').forEach((t) => t.setAttribute(t.getAttribute('role') === 'tab' ? 'aria-selected' : 'aria-pressed', String(t.dataset.tab === name)));
   $$('.tabpanel').forEach((p) => (p.hidden = p.id !== 'tab-' + name));
+  const col = $('.panel-col'); if (col && col.scrollTop > 0 && matchMedia('(min-width: 1024px)').matches) col.scrollTop = 0;
   if (name !== 'sim' && S.sim) { S.sim = null; S.sel = S.result && S.result.ok ? S.result.data.options[0] : null; drawMap(); actions.renderPrefs && actions.renderPrefs(); }
   if (name === 'alerts') refreshAlerts();
   if (name === 'admin') refreshAdmin();
@@ -80,7 +82,7 @@ function initConnectionBanner() {
 async function init() {
   initConnectionBanner();
   document.documentElement.dataset.theme = store('dp-theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-  const themeLabel = () => { $('#theme').textContent = document.documentElement.dataset.theme === 'dark' ? 'Light' : 'Dark'; };
+  const themeLabel = () => { const dark = document.documentElement.dataset.theme === 'dark'; $('#theme').innerHTML = ic(dark ? 'sun' : 'moon'); $('#theme').setAttribute('aria-label', `Switch to ${dark ? 'light' : 'dark'} theme`); $('#theme').title = `Switch to ${dark ? 'light' : 'dark'} theme`; };
   themeLabel();
   $('#theme').onclick = () => { const t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = t; themeLabel(); store('dp-theme', t); };
   Object.assign(actions, { drawMap, loadNetwork, refreshAll, showTab, renderScenario, researchIfAny: () => { if (S.result && S.result.ok) { const d = S.result.data; actions.search({ ...d.constraints, origin: d.origin, destination: d.dest }); } } });
@@ -92,7 +94,8 @@ async function init() {
   initMapControls(); initShare(); initSearch(); initFareBreakdown(); initSim(); initAlerts(); initAdmin(c.adminHint); initChat(); initVoice(); initClock(); initWatch();
   renderScenario();
   $('#origin').value = 'DHA'; $('#destination').value = 'MOT'; $('#student').checked = true;
-  $$('.tabs [role=tab]').forEach((t) => t.addEventListener('click', () => showTab(t.dataset.tab)));
+  $$('[data-tab]').forEach((t) => t.addEventListener('click', () => showTab(t.dataset.tab)));
+  if (matchMedia('(min-width: 1024px)').matches) $('#street-legend').open = true;   // phones: the legend stays folded over the small map
   $('#card-close').onclick = () => $('#card-dialog').close();
   await refreshAlerts();
   await actions.search();

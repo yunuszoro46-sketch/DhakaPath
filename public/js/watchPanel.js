@@ -1,6 +1,6 @@
 // Trip Watch: saved trips re-checked on every poll; a change is announced once as a toast with the
 // cause and a grounded detour (Show detour / Switch to it / read aloud).
-import { $, $$, esc } from './util.js';
+import { $, $$, esc, ic } from './util.js';
 import { S, actions } from './store.js';
 import { get, post, del, currentUser } from './api.js';
 
@@ -23,7 +23,7 @@ export async function refreshWatches() {
   $('#watch-panel').hidden = !ws.length;
   $('#watch-list').innerHTML = ws.map((w) => `<div class="watch-item"><div><span class="wstatus ${w.status}">${LABEL[w.status]}</span> <b>${esc(w.label)}</b> <span class="muted small">usual: ${esc(w.usual.summary)}</span></div>
     <div class="small">${esc(w.message)}</div>
-    <div class="row tight" style="margin-top:5px">${w.suggestion ? `<button class="ghost small" data-wshow="${w.id}">Show detour</button><button class="ghost small" data-waccept="${w.id}">Switch to it</button>` : ''}<button class="ghost small" data-wsay="${w.id}" aria-label="Read aloud">🔊</button><button class="ghost small danger" data-wdel="${w.id}">Stop watching</button></div></div>`).join('');
+    <div class="row tight" style="margin-top:5px">${w.suggestion ? `<button class="ghost small" data-wshow="${w.id}">Show detour</button><button class="ghost small" data-waccept="${w.id}">Switch to it</button>` : ''}<button class="ghost small" data-wsay="${w.id}" aria-label="Read aloud">${ic('speak')}</button><button class="ghost small danger" data-wdel="${w.id}">Stop watching</button></div></div>`).join('');
   const byId = Object.fromEntries(ws.map((w) => [w.id, w]));
   $$('[data-wshow]').forEach((b) => b.onclick = () => showSuggestion(byId[b.dataset.wshow]));
   $$('[data-waccept]').forEach((b) => b.onclick = async () => { await post(`/api/watch/${b.dataset.waccept}/accept`, {}); S.watchSeen[b.dataset.waccept] = 'ok'; hideToast(); refreshWatches(); });
@@ -59,7 +59,7 @@ export function toast(kind, text, w) {
   const t = $('#toast');
   t.className = 'toast' + (kind === 'warn' ? ' warn' : '');
   t.style.borderColor = kind === 'ok' ? 'var(--ok)' : '';
-  t.innerHTML = `<div>${kind === 'bad' ? '⚠️ ' : kind === 'ok' ? '👁 ' : '⏱ '}${esc(text)}</div><div class="row">${w && w.suggestion ? '<button class="primary small" id="t-show">Show detour</button>' : ''}${w ? '<button class="ghost small" id="t-say">🔊 Read aloud</button>' : ''}<button class="ghost small" id="t-close">Dismiss</button></div>`;
+  t.innerHTML = `<div>${ic(kind === 'bad' ? 'alert' : kind === 'ok' ? 'watch' : 'clock')}<span>${esc(text)}</span></div><div class="row">${w && w.suggestion ? '<button class="primary small" id="t-show">Show detour</button>' : ''}${w ? `<button class="ghost small" id="t-say">${ic('speak')}Read aloud</button>` : ''}<button class="ghost small" id="t-close">Dismiss</button></div>`;
   t.hidden = false;
   if ($('#t-show')) $('#t-show').onclick = () => { showSuggestion(w); hideToast(); };
   if ($('#t-say')) $('#t-say').onclick = () => sayWatch(w);

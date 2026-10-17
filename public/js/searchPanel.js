@@ -1,10 +1,11 @@
 // Search: natural-language box, constraint form, option cards (labels, Verified badge, trust-aware
 // "why" line). The selected option's details are rendered by fareBreakdown.js.
-import { $, $$, esc, rng, pills, MODES, MODE_NAME, busy, latest, retryable } from './util.js';
+import { $, $$, esc, rng, pills, ic, MODES, MODE_NAME, busy, latest, retryable } from './util.js';
 import { S, actions, hubName } from './store.js';
 import { post } from './api.js';
 import { renderDetail } from './fareBreakdown.js';
 import { optionFor, prefFromOption, renderPrefs } from './mapControls.js';
+import { kindOf } from './streetMap.js';
 
 export function query() {
   return { origin: $('#origin').value, destination: $('#destination').value, student: $('#student').checked,
@@ -21,6 +22,7 @@ export async function search(body) {
   if (btn && btn.getAttribute('aria-busy') === 'true' && !body) return;     // double click: the first search is still running
   const k = turn.next(); lastQuery = q;
   const out = $('#search-out'); out.setAttribute('aria-busy', 'true');
+  if (!out.children.length) out.innerHTML = '<div class="skeleton" aria-hidden="true"><p>Finding routes… <span class="bn" lang="bn">রুট খোঁজা হচ্ছে…</span></p><i></i><i></i></div>';
   const r = btn && btn.getAttribute('aria-busy') === 'true' ? await post('/api/search', q) : await busy(btn, 'Searching…', () => post('/api/search', q));
   if (!turn.isCurrent(k)) return;                 // a newer search was started meanwhile
   out.removeAttribute('aria-busy');
@@ -49,7 +51,7 @@ export function syncForm(d) {
 
 const whyLine = (o) => {
   const w = (o.why || []).filter((x) => x.kind !== 'clear');
-  if (!w.length) return '<div class="why ok">✓ No street reports on this route</div>';
+  if (!w.length) return `<div class="why ok">${ic('check')} No street reports on this route</div>`;
   return w.slice(0, 2).map((x) => `<div class="why ${x.kind}">${x.kind === 'avoids' ? '↪' : x.kind === 'hard' ? '⛔' : x.kind === 'soft' ? '⚠' : 'ⓘ'} ${esc(x.text)}</div>`).join('');
 };
 const budgetTag = (o) => (!o.budget ? '' : o.budget.status === 'within' ? `<span class="tag rec">Fits ৳${o.budget.limit}</span>` : o.budget.status === 'estimated_within' ? `<span class="tag warn" title="${esc(o.budget.note || '')}">Might fit ৳${o.budget.limit}</span>` : o.budget.status === 'unknown' ? '<span class="tag warn">budget: fare unknown</span>' : '');
@@ -60,16 +62,21 @@ const maybeList = (u) => (u && u.length ? `<details class="more"><summary>${u.le
 function backupBlock(d) {
   const b = d.backup;
   if (!b) return '';
-  if (!b.option) return b.reason ? `<p class="muted small">🛟 No backup: ${esc(b.reason)}</p>` : '';
+  if (!b.option) return b.reason ? `<p class="muted small">${ic('backup')} No backup: ${esc(b.reason)}</p>` : '';
   d.backupList = [b.option];
   const shown = [...d.options, ...d.others].find((o) => o.signature === b.option.signature);
   if (shown) shown.isBackup = true;
-  return `<div class="backup"><h3 class="small">🛟 Backup route <span class="muted">(${sg(b.delta.minutes)} min, ${b.delta.fareLow === b.delta.fareHigh ? sg(b.delta.fareLow) : sg(b.delta.fareLow) + ' to ' + sg(b.delta.fareHigh)} ৳, ${sg(b.delta.transfers)} transfers vs main)</span></h3>
+  return `<div class="backup"><h3 class="small">${ic('backup')} Backup route <span class="muted">(${sg(b.delta.minutes)} min, ${b.delta.fareLow === b.delta.fareHigh ? sg(b.delta.fareLow) : sg(b.delta.fareLow) + ' to ' + sg(b.delta.fareHigh)} ৳, ${sg(b.delta.transfers)} transfers vs main)</span></h3>
     <p class="small" style="margin:0 0 6px">${esc(b.trigger)} ${b.distinct === 'no_shared_service' ? 'Shares no bus, train or rickshaw/CNG link with the main route.' : 'Avoids the main route’s most exposed leg.'}${shown ? ` It is the card tagged <b>Backup</b> ${d.options.includes(shown) ? 'above' : 'under “more options”'}.` : ''}</p>${shown ? '' : optCard(b.option, 0, 'backupList')}</div>`;
 }
 function optCard(o, i, group) {
-  return `<button type="button" class="opt" data-g="${group}" data-i="${i}" aria-pressed="${S.sel && S.sel.id === o.id}">
-    <div>${(o.labels || []).map((t) => `<span class="tag ${t === 'Cheapest' ? 'rec' : ''}">${t}</span>`).join('')}${o.isBackup ? '<span class="tag warn">🛟 Backup</span>' : ''}${o.fareUnknown ? '<span class="tag warn">fare unknown</span>' : ''}${budgetTag(o)} ${o.grounded ? '<span class="badge-ok">Verified against network ✓</span>' : '<span class="badge-bad">Not verified</span>'}</div>
+  // a ticket: why it is shown (kind label, coloured like its map line), the plate (minutes, fare,
+  // transfers; Big Shoulders), the journey strip (one plate per leg), then the trust line
+  const kind = kindOf(o), labels = o.labels || [];
+  const tags = labels.map((t, j) => `<span class="tag${j === 0 ? ' kind' : ''}${t === 'Cheapest' ? ' rec' : ''}">${t}</span>`).join('');
+  return `<button type="button" class="opt k-${kind}" data-g="${group}" data-i="${i}" aria-pressed="${S.sel && S.sel.id === o.id}">
+    <div class="t-top"><div class="t-tags">${o.isBackup ? `<span class="tag warn${labels.length ? '' : ' kind'}">Backup</span>` : ''}${tags}${o.fareUnknown ? '<span class="tag warn">fare unknown</span>' : ''}${budgetTag(o)}</div>
+      <div class="t-verify">${o.grounded ? `<span class="badge-ok">${ic('check')}Verified against network ✓</span>` : '<span class="badge-bad">Not verified</span>'}</div></div>
     <div class="nums"><span>${o.totalMinutes} <small>min</small></span><span>${rng(o.fareRangeLow, o.fareRangeHigh)} <small>${o.student ? 'student' : 'regular'}</small></span><span>${o.transfers} <small>transfer${o.transfers === 1 ? '' : 's'}</small></span></div>
     ${pills(o)}${whyLine(o)}</button>`;
 }
@@ -86,12 +93,12 @@ export function renderSearch() {
   const d = r.data, c = d.constraints, k = d.conditions;
   const bkHtml = backupBlock(d);
   const filt = [c.student && 'student', c.maxBudget != null && `≤ ৳${c.maxBudget}`, c.maxTransfers != null && `≤ ${c.maxTransfers} transfers`, c.maxTravelTime != null && `≤ ${c.maxTravelTime} min`, c.singleModeOnly && 'single mode only', c.avoidHubs.length && 'avoiding ' + c.avoidHubs.map(hubName).join(', '), c.avoidModes.length && 'no ' + c.avoidModes.map((m) => MODE_NAME[m]).join('/')].filter(Boolean);
-  out.innerHTML = `<div class="card">
+  const fresh = !out.querySelector('#opts') || out.dataset.trip !== `${d.origin}>${d.dest}`;
+  out.dataset.trip = `${d.origin}>${d.dest}`;
+  out.innerHTML = `<div class="card${fresh ? ' strip-anim' : ''}">
     <div class="row between" style="margin-bottom:4px"><h2>${esc(d.originName)} → ${esc(d.destName)}</h2><span class="muted small" title="${esc(statsTitle(d.stats))}">${d.considered} paths checked${d.partial ? ' · partial' : ''}</span></div>
-    ${filt.length ? `<p class="muted small" style="margin:0 0 8px">${esc(filt.join(' · '))}</p>` : ''}
-    <p class="cond-line">${k.rush ? `🚦 <b>Rush hour applied</b> (${k.rushSource}, leaving ${k.departAt}): buses ×1.5, rickshaw/CNG fares surge.` : `Leaving ${k.departAt}${k.departSource === 'now' ? ' (now)' : ''}: off-peak.`}${k.scenarioActive ? ` 🌧 Scenario active: ${esc(k.scenarioLabel || 'simulated conditions')}.` : ''}</p>
+    <p class="cond-line${k.rush ? '' : ' calm'}">${filt.length ? `<span class="trip-meta">${esc(filt.join(' · '))}</span>` : ''}${k.rush ? `${ic('rush')} <span><b>Rush hour applied</b> (${k.rushSource}, leaving ${k.departAt}): buses ×1.5, rickshaw/CNG fares surge.</span>` : `${ic('clock')} <span>Leaving ${k.departAt}${k.departSource === 'now' ? ' (now)' : ''}: off-peak.</span>`}${k.scenarioActive ? ` ${ic('rain')} <span>Scenario active: ${esc(k.scenarioLabel || 'simulated conditions')}.</span>` : ''}${d.alertsUsed && d.alertsUsed.length ? ` <span class="cond-alert">${ic('alert')}${d.alertsUsed.length} street alert(s) are shaping these routes.</span>` : ''}</p>
     ${d.parsed ? `<p class="muted small" style="margin:0 0 8px">Read by ${d.parsed.source === 'llm' ? 'AI' : 'rule parser'}: intent ${esc(d.parsed.intent)}</p>` : ''}
-    ${d.alertsUsed && d.alertsUsed.length ? `<div class="note warn">${d.alertsUsed.length} street alert(s) are shaping these routes.</div>` : ''}
     <div id="opts">${d.options.map((o, i) => optCard(o, i, 'options')).join('')}</div>
     ${bkHtml}${maybeList(d.uncertainBudget)}
     ${d.others.length ? `<details class="more others"><summary>${d.others.length} more option(s)</summary>${d.others.map((o, i) => optCard(o, i, 'others')).join('')}</details>` : ''}
@@ -114,7 +121,8 @@ export function renderFilters() {
   $$('#avoid-chips .x').forEach((b) => b.onclick = () => { S.avoid.splice(Number(b.dataset.i), 1); renderFilters(); });
   $('#mode-chips').innerHTML = MODES.map((m) => `<button type="button" class="chip" data-m="${m}" aria-pressed="${!S.avoidModes.includes(m)}"><span class="mpill ${m}">${MODE_NAME[m]}</span></button>`).join('');
   $$('#mode-chips [data-m]').forEach((b) => b.onclick = () => { const m = b.dataset.m; S.avoidModes = S.avoidModes.includes(m) ? S.avoidModes.filter((x) => x !== m) : [...S.avoidModes, m]; renderFilters(); });
-  const n = S.avoid.length + S.avoidModes.length; $('#filter-sum').textContent = n ? `(${n} active)` : '';
+  const lim = ['#maxBudget', '#maxTransfers', '#maxTravelTime'].filter((id) => $(id).value !== '').length + ($('#singleMode').checked ? 1 : 0) ;
+  const n = S.avoid.length + S.avoidModes.length + lim; $('#filter-sum').textContent = n ? `${n} active` : '';
 }
 
 export function initSearch() {
@@ -127,5 +135,8 @@ export function initSearch() {
     search({ query: t, sort: ($('input[name=sort]:checked') || {}).value });
   });
   $('#swap').onclick = () => { const a = $('#origin').value; $('#origin').value = $('#destination').value; $('#destination').value = a; search(); };
+  $('#filters').addEventListener('change', () => renderFilters());
+  // sort chips sit above the results: a change re-ranks the current trip at once
+  $$('input[name=sort]').forEach((r) => r.addEventListener('change', () => { if (S.result) search(); }));
   $('#avoid-add').onclick = () => { const v = $('#avoid-pick').value; if (v && !S.avoid.includes(v)) { S.avoid.push(v); renderFilters(); } };
 }
