@@ -2,7 +2,8 @@
 
 Everything built on the user-facing side of DhakaPath: layout, panels, map, chat, feedback and error
 states, accessibility, and how each was verified. The web app is plain HTML, CSS and ES modules in
-`public/` with no framework and no build step; Leaflet 1.9.4 is the only library, vendored locally.
+`public/` with no framework and no build step; Leaflet 1.9.4 is the only library, vendored locally with
+two OFL fonts and an SVG icon sprite, so the app works offline.
 
 Open it with `npm start` → http://localhost:3000, or build `npm run preview` and open
 `dist/dhakapath-preview.html` (a one-file preview that runs the same engine in the page; admin password `demo`).
@@ -10,87 +11,107 @@ Why this is the only frontend: `architecture/adr-001-single-frontend.md`.
 
 ---
 
-## 1. Design system
+## 1. Design system ("Night Route", v2)
 
-The UI is a commuter tool, not a dashboard: one primary action per view (find routes), big legible
-numbers, and honesty about the data built into the chrome. Everything is tokens in `public/styles.css`
-(`:root`, overridden for `[data-theme="light"]`); the theme follows the system on first visit and the
-**Light / Dark** button switches and remembers it.
+Plan and reasoning: [`UI-REDESIGN-PLAN.md`](UI-REDESIGN-PLAN.md). The UI is a commuter tool: the map is
+the stage, a route is a ticket, and honesty about the data is part of the chrome. Everything is tokens in
+`public/styles.css` (`:root` = dark, `[data-theme="light"]` overrides); the theme follows the system on
+first visit and the sun / moon button switches and remembers it.
 
-- **The memorable element:** route numbers and fares as "plates" — large tabular figures (minutes, ৳,
-  transfers) and squared, high-contrast mode plates (`B4`, `MRT-6`, `Rickshaw`) like Dhaka bus route
-  boards. Everything around them is quiet.
-- **Colour.** Dark: ink-blue night `#14171c` / surfaces `#1c2026`, `#252a32`; light: paper `#f3f4f6` /
-  `#fff`. One accent, MRT-6 green (`#17a86f` dark, `#0b7a52` light) for the primary action, the selected
-  card and focus of attention. Status colours each have a tint background (`--ok`, `--warn`, `--bad`,
-  `--info`) and are **always paired with text or an icon**.
-- **Mode colours** (map lines, mode plates, legend): MRT-6 violet, bus blue, leguna teal, rickshaw amber,
-  CNG green, walk grey. **Route-kind colours** (street map): Cheapest `#2563eb`, Fastest `#16a34a`,
-  Balanced `#7c3aed`, Backup `#f97316` dashed, blocked/cut `#dc2626`.
-- **Type.** One system family with a Bengali fallback (`--font`), loaded from nowhere — the demo must not
-  depend on a font CDN. Scale: 12 / 13 / 15 / 17 / 22 / 28 px (`--fs-xs` … `--fs-2xl`); figures use
-  tabular numerals; headings are tight-tracked, labels are sentence case.
-- **Space and shape.** 4 / 8 / 12 / 16 / 20 / 28 px steps (`--sp-*`); radii 6 / 10 / 14 px by hierarchy
-  (control / card / dock); two shadow levels only.
-- **Status language.** Alert status chips carry a glyph and a word (`⛔ Active`, `? Unverified`,
-  `⇄ Disputed`, `◔ Fading`, `✓ Resolved`); the confidence bar carries marks at 0.30 and 0.60; the routing
-  effect is printed (`routing: soft: time ×1.25`). Fare sources are badges: green **official source**, amber
-  **estimate**. Map links use dash patterns as well as colour.
-- **Honesty is part of the UI:** a permanent banner says the data is seed data, not official; fares are
-  ranges where they are negotiable; every route card says whether it was verified against the network;
-  hub positions on the street map are labelled approximate; simulations are labelled as such; Fare Truth
-  says when a verdict is against an estimated range rather than an official chart.
-- **Motion.** Only in answer to an action or to draw the eye: the busy sweep on a loading panel, the mic
-  pulse while listening, the route-stop pulse on the map. All of it is off under `prefers-reduced-motion`.
+- **The memorable element: the route ticket.** A kind label coloured exactly like its map line
+  (Cheapest blue, Fastest green, Balanced purple, Backup orange), a plate of large signage figures
+  (minutes, ৳, transfers in Big Shoulders), and a **journey strip**: one segment per leg, coloured by
+  mode, its width proportional to the leg's wait + ride minutes (the lighter head of a segment is the
+  wait). You read the shape of a trip before any text. The same strip appears in Monsoon before / after.
+- **Colour.** Dark (default): night navy `#0a1020`, surfaces `#0f1829` / `#16223a` / `#1e2c47`, text
+  `#e8edf5`, muted `#97a3ba`. Light: `#eef2f7` / `#fff` / `#f3f6fa`, text `#0e1626`, muted `#56627a`.
+  One accent, signal green (`#1db57a` dark, `#0b7a52` light), for the primary action, the selected state
+  and focus of attention. Status colours each have a tint background and are **always paired with text or
+  a glyph**. Every text/background pair passes WCAG AA: `node tools/contrast.mjs`.
+- **Mode colours** (map lines, journey strip, mode plates): MRT-6 violet, bus blue, leguna teal, rickshaw
+  amber, CNG green, walk grey. **Route-kind colours** are fixed so the ticket and the map agree; dark text
+  sits on the green and orange labels to keep 4.5:1.
+- **Type.** Instrument Sans for the interface, Big Shoulders for figures (road-signage feel), both SIL OFL,
+  subset and vendored in `public/vendor/fonts/` (the demo never depends on a font CDN). Bangla falls back to
+  the device font (Hind Siliguri, Noto Sans Bengali, Nirmala UI, Bangla Sangam). Scale 12 / 14 / 16 / 18 /
+  20 / 24 / 30 / 36 px (1.25 ratio); sentence-case labels; tabular figures in tables.
+- **Space and shape.** 8 px grid (4 / 8 / 16 / 24 / 32 / 48, with 12 as the one half step); radius by
+  hierarchy: sheet 20, card 12, control 10, chips pill. Shadows only on things that float (map controls,
+  drawer, toasts, the phone sheet).
+- **Icons.** One inline SVG sprite (Material Design Icons, `tools/make_icons.py`) instead of emoji, so they
+  render the same on every OS: nav, planner, actions, empty states, map controls.
+- **Status language.** Alert chips carry a glyph and a word (`⛔ Active`, `? Unverified`, `⇄ Disputed`,
+  `◔ Fading`, `✓ Resolved`); the confidence bar has marks at 0.30 and 0.60; the routing effect is printed;
+  fare sources are **official source** / **estimate** badges; map links use dash patterns as well as colour.
+- **Motion.** One orchestrated moment: on a new trip the selected route draws itself onto the map and the
+  journey strips fill left to right. Otherwise only state changes (150–200 ms). All off under
+  `prefers-reduced-motion`.
+- **Every control has five states** (default, hover, active, visible focus ring, disabled); checkboxes are
+  drawn so they match both themes; touch targets are 40–44 px on phones.
+
+### KoyJabo reference
+
+Patterns taken from KoyJabo (koyjabo.com), not its look: From / To first, with an icon tile inside each
+field (here the same A / B pins as the map); quick sort chips right above the results; icon + label + value
+tiles (route summary, Monsoon deltas, network size); bilingual headings with Bangla treated as a first-class
+script. Colours, data, copy and layout are DhakaPath's own.
+
+### English / Bangla
+
+The **বাং / EN** button switches the whole interface (`public/js/i18n.js`). English is the source text in
+the code; in Bangla mode a MutationObserver translates what is on screen: exact labels, patterns for
+sentences with numbers and names (the UI's own and the engine's common ones: directions, why lines,
+backup, fare verdicts, best time, Monsoon, share bot), hub names from each hub's `bn` field in the network
+data, and every digit as a Bangla digit. It keeps the English original of each text node and attribute,
+so switching back restores the exact text. Form values, `data-*` attributes and API requests never change
+(every `<option>` has an explicit `value`). Chat replies, pasted posts, the Banglish sample chips and the
+conductor script stay as written. The choice is remembered per browser; a browser set to Bangla starts in
+Bangla. Checked by `check12-i18n` (40 checks).
 
 ## 2. Layout
 
 | Width | Layout |
 |---|---|
-| Desktop (> 900 px) | Map on the left (sticky), panels on the right; chat button in the header, dock drops from the top right |
-| Tablet / phone (≤ 900 px) | One column: **map first** (42 vh), then the tab strip and panels; floating chat button bottom right with space reserved under the content |
-| Phone (≤ 520 px) | Map 40 vh, street legend moves under the map, header on two rows, form grids one column, the "Server / In-page" chip hides |
+| Desktop (≥ 1024 px) | Fixed-height app. Header: brand, the five sections, clock with +15 / +30 / +90, AI badge, Admin (shield), বাং / EN, theme, Chat. Planner panel on the left (440 px; 400 px below 1280) scrolls on its own; the map fills the rest, with the route buttons and Street / Schematic switch floating top-left, *Show all hubs* top-right, the legend bottom-left, zoom bottom-right, and the seed-data strip along its bottom edge. Chat is a 400 px drawer on the right. |
+| Tablet and phone (< 1024 px) | Map on top (36 vh) with its controls laid over it; the seed-data strip under it (one line, tap to expand); the planner slides up over the map like a sheet (rounded top, grab handle); a fixed bottom nav holds the five sections, so nothing hides behind sideways scrolling. Chat opens full screen. Toasts move to the bottom, above the nav. |
+| Phone (≤ 640 px) | Header on two rows: brand + Admin, language, theme, chat; then the clock and the AI badge. On the Plan tab From, To and *Find routes* are visible without scrolling at 390 × 844. |
 
-- **Header:** DhakaPath brand · simulated clock (Asia/Dhaka) with **+15 / +30 / +90 min** in one control ·
-  **AI badge** (`AI: live`, `AI: fallback`, `AI: offline parser`) · where answers are computed (`Server`
-  or `In-page engine`) · theme toggle · **Chat** (desktop).
-- **Banners under the header:** seed-data notice (always); **connection banner** (only when the server
-  can't be reached; see §9); **scenario banner** when a simulated scenario is applied to the whole app
-  (rain/heavy rain, blocked hubs, rush, lines not running, delays with their expiry) with a **Clear** button.
-- **Tabs:** Search · Network · Simulate · Alerts · **Share** · Admin — a segmented strip that scrolls
-  sideways on narrow screens with an edge fade as the cue.
-- **Trip Watch panel** above the tabs when you watch a trip.
-- **Footer:** one-line architecture note and the **Test AI hallucination** button.
-- No horizontal scrolling at 360 or 390 px (checked in every browser-check suite).
+- **Banners:** the **connection banner** (only when the server can't be reached; see §9) and the
+  **scenario banner** when a simulated scenario is applied to the whole app, with a **Clear** button.
+- **Trip Watch panel** at the top of the planner when you watch a trip.
+- **Footer** (end of the planner): one-line architecture note and the **Test AI hallucination** button.
+- No horizontal scrolling from 320 px up.
 
-## 3. Search tab
+## 3. Plan tab
 
-- **Natural-language box** (English, Banglish, Bangla): e.g. *"Mirpur theke Motijheel, student,
-  40 takar moddhe"*. The parsed result fills the form below, so the user sees what was understood, and
+- **Where are you headed?** From and To are the first thing: two large fields, each carrying the same
+  **A / B pin** as the map, with a swap button. **Student** (½ bus fare) and **Leave at** (blank = now;
+  rush hour is applied automatically from the time) stay visible; **More options** folds in max budget ৳,
+  max transfers, max minutes, avoid-hub chips, six mode chips (tap to exclude) and *Single mode only*,
+  and shows how many of them are active. **Find routes** (রুট খুঁজুন) is a full-width button.
+- **Or just type it:** the natural-language box (English, Banglish, Bangla), e.g. *"Mirpur theke Motijheel,
+  student, 40 takar moddhe"*. The parsed result fills the form, so the user sees what was understood, and
   the results say whether the AI or the rule parser read it. An empty box shows an example instead of
   doing nothing.
-- **🎤 Voice input** next to Search (and in the chat composer): the browser's own speech recognition, with a
-  **বাং / EN** language button (Bangla bn-BD by default; the choice is shared by both mics and remembered).
-  While listening the mic pulses red, the placeholder says "শুনছি…" / "Listening…", the words appear live
-  in the box, and the final text is sent through the same form, with "Heard: “…”" underneath. Tap again to
-  finish, Esc to cancel, 10 s limit. A blocked mic, no speech, no network or an unsupported browser
-  (Firefox) is explained in one line under the box; typing always works.
-- **Form:** From / To (with a ⇅ swap), Student, Max budget ৳, Max transfers, **Max minutes**,
-  Leave at (blank = now; rush hour is applied automatically from the time).
-- **Sort:** Best score · Fastest · Cheapest · Fewest transfers.
-- **"Avoid hubs or modes"** (collapsible): avoid-hub chips, six mode chips (MRT-6, Bus, Leguna,
-  Rickshaw, CNG, Walk; tap to exclude), **Single mode only** checkbox.
-- **Result header:** "Origin → Destination", the active filters in one line, the conditions line
-  ("Rush hour applied …" / "off-peak", scenario active), how many paths were checked (hover for the
-  full search statistics), and a note when street alerts are shaping the routes.
-- **Route cards:** labels **Cheapest / Fastest / Fewest transfers / Balanced**, a **Verified against
-  network ✓** badge, minutes · fare (regular or student) · transfers, mode pills per leg, and a
-  trust-aware "why" line (e.g. "✓ No street reports on this route", "↪ avoids Science Lab blockade
-  (confirmed by 3)", "⚠ unverified report …"). Extra tags when they apply: **🛟 Backup**, **Fits ৳X**,
-  **Might fit ৳X**, **fare unknown**.
-- **Backup route block:** "🛟 Backup route (+15 min, −28 ৳, 0 transfers vs main)", the trigger
+- **Voice input** (mic icon, in the box and in the chat composer): the browser's own speech recognition,
+  with a **বাং / EN** voice-language button (Bangla bn-BD by default, shared by both mics, remembered).
+  While listening the mic pulses red, the words appear live, and the final text is sent through the same
+  form, with "Heard: “…”" underneath. Tap again to finish, Esc to cancel, 10 s limit; a blocked mic, no
+  speech, no network or an unsupported browser is explained in one line; typing always works.
+- **Sort chips** right above the results: Best match · Fastest · Cheapest · Fewest changes. Changing one
+  re-ranks the current trip at once.
+- **Result header:** "Origin → Destination", how many paths were checked (hover for the full search
+  statistics), then one conditions line: active filters, "Rush hour applied …" or "off-peak", scenario
+  active, and how many street alerts are shaping the routes.
+- **Route tickets** (see §1): kind label coloured like the map line plus the other labels it earned
+  (Cheapest / Fastest / Fewest transfers / Balanced), **Verified against network ✓**, the plate (minutes,
+  fare regular or student, transfers), the journey strip, and the trust-aware "why" line ("No street
+  reports on this route", "Avoids Science Lab: waterlogging confirmed (0.70, 3 reports)", "Passes
+  Mohakhali: unverified gridlock … only +25% time"). Extra tags when they apply: **Backup**, **Fits ৳X**,
+  **Might fit ৳X**, **fare unknown**. The selected ticket is raised and outlined in its kind colour.
+- **Backup route block:** "Backup route (+15 min, −28 ৳, 0 transfers vs main)", the trigger
   ("Use if any service on the main route stops; most exposed: MRT-6 Mirpur–Motijheel") and how it
-  differs. If the backup is already one of the cards, that card is tagged instead of repeated; if there
+  differs. If the backup is already one of the tickets, that ticket is tagged instead of repeated; if there
   is none, it says why.
 - **"Might fit your budget"** list (collapsible): routes whose typical fare fits but whose top estimate
   doesn't, kept apart from the main results.
@@ -102,8 +123,8 @@ numbers, and honesty about the data built into the chrome. Everything is tokens 
 
 ### Selected route detail (under the cards)
 
-- **Step by step** in **English / Banglish** (toggle), each step with the boarding **landmark note**
-  (📍, marked "sample note" where it is placeholder text).
+- **Step by step**, numbered on a rail (the steps are a sequence), in **English / Banglish** (toggle),
+  each with the boarding **landmark note** (pin icon, marked "sample note" where it is placeholder text).
 - **Fare breakdown table:** per leg: km, regular, student, "student discount applies / does not apply",
   rickshaw/CNG **baseline range → surge ×1.3/1.5/1.8 range**; trip total; the ranking midpoint (≈৳, whole
   taka); **fare table version** ("Fare table v2, updated 16 Oct"); and **fare sources** for the modes on
@@ -111,8 +132,8 @@ numbers, and honesty about the data built into the chrome. Everything is tokens 
   effective 22 Sep 2026, with a link and the date checked) and MRT-6, an amber **estimate** pill for
   rickshaw, CNG and leguna.
 - **Why this route**, alerts on the route (status, confidence, age, routing effect).
-- **👁 Watch this trip** · **🔊 Read aloud** (browser speech) · **Offline card (PNG)**: a summary card
-  drawn on a canvas for low battery / poor connectivity · **⏰ Best time to leave**: a coloured advice line
+- Action bar: **Watch this trip** · **Best time to leave** · **Read aloud** (browser speech) · **Offline card (PNG)**: a summary card
+  drawn on a canvas for low battery / poor connectivity · **Best time to leave**: a coloured advice line
   (green "leave at 10:30 instead of 09:50 — 58 → 41 min … you arrive 11:11 instead of 10:48", amber "leave
   before 07:30", blue "leave now") and one chip per departure (time, minutes, fare, arrival; the best one
   green, rush departures dashed with a **rush** tag), then the assumption and the rush windows. Busy label
@@ -166,16 +187,17 @@ Two views, switchable in the map toolbar (**Street / Schematic**, remembered).
 
 ## 5. Network tab (commuter browse view)
 
+- **Network size tiles:** hubs, lines, links and modes, counted from the network data the engine routes on.
 - **Routes running now:** each line with mode, origin/destination hubs, base fare, student-pass
   eligibility, estimated time and live state.
 - **Hubs and disruptions:** hub statuses and current alerts with their metadata.
 
-## 6. Simulate tab
+## 6. Monsoon tab (simulation)
 
-- Trip taken from the Search tab.
-- **Presets:** Rain at Science Lab · Science Lab flooded · Rush hour · Monsoon evening · Heavy rain south ·
-  **MRT-6 suspended** · **MRT-6 delayed**.
-- **Custom:** rain by zone or by hub, **Heavy rain** checkbox, blocked hubs, rush hour, **Line not running**,
+- Trip taken from the Plan tab.
+- **Scenario tiles** (two columns, with an icon for rain, rush, line down or delay): Rain at Science Lab ·
+  Science Lab flooded · Rush hour · Monsoon evening · Heavy rain south · **MRT-6 suspended** · **MRT-6 delayed**.
+- **Or build your own conditions** (folded): rain by zone or by hub, **Heavy rain** checkbox, blocked hubs, rush hour, **Line not running**,
   **Delay line** (+% and +min).
 - **Output:** explanation in plain words naming the actual cause, affected segments (✖ cut / ⏱ slowed),
   **"Backup planned before the change: still works / cut too"**, three delta tiles (time, fare, route:
@@ -198,7 +220,7 @@ Two views, switchable in the map toolbar (**Street / Schematic**, remembered).
 
 ## 7b. Share tab (bonus 3: ride-share board)
 
-- Pick **From hub**, **To** and **Rickshaw (2 seats)** or **CNG (3 seats)**; the **🤖 split bot** answers at
+- Pick **From hub**, **To** and **Rickshaw (2 seats)** or **CNG (3 seats)**; the **split bot** answers at
   once: "Split 2 ways: ৳15–23 each, of ৳30–45 total", with the surge named when rush or rain applies, or
   "There is no direct CNG link …" when there isn't one.
 - **Find or start a share:** joins an open share going to the same place if there is one, otherwise posts a
@@ -206,11 +228,11 @@ Two views, switchable in the map toolbar (**Street / Schematic**, remembered).
 - **Open shares from <hub>:** riders (e.g. 1/2, "you are in"), minutes left, cost each now and "if one more
   joins", **Join / Leave**. The board refreshes by itself every few seconds; full shares disappear for
   others; only counts are shown, never who.
-- **From a route:** every rickshaw/CNG leg in the fare table has "👥 Share this rickshaw and split the fare",
+- **From a route:** every rickshaw/CNG leg in the fare table has "Share this rickshaw and split the fare",
   which opens the tab prefilled.
 - **In chat:** "Shahbagh theke Science Lab rickshaw share korbo, amra 2 jon" → split + open shares.
 
-## 8. Admin tab
+## 8. Admin (shield button in the header)
 
 - Password login (bearer token); wrong password is refused with a message.
 - **Moderation queue** (approve / remove) with the sanity-check reason.
@@ -240,12 +262,15 @@ Two views, switchable in the map toolbar (**Street / Schematic**, remembered).
 
 ## 10. Trip Watch
 
-- **👁 Watch this trip** saves it; the panel re-checks it on every poll against confirmed alerts, rush hour
+- **Watch this trip** saves it; the panel re-checks it on every poll against confirmed alerts, rush hour
   and the applied scenario.
 - On a change, a **toast** (once per change) with the cause and a verified detour: **Show detour**,
-  **Switch to it**, **🔊** read aloud, **Stop watching**. Unverified single reports never trigger a reroute.
+  **Switch to it**, read aloud, **Stop watching**. Unverified single reports never trigger a reroute.
 
-## 11. Chat dock
+## 11. Chat drawer
+
+- Opened from **Chat** in the header: a 400 px drawer on the right on desktop (the map stays visible),
+  full screen on phones; **Escape** or the close button closes it and returns focus to the Chat button.
 
 - English, Banglish and Bangla; keeps context ("ar kono option?", "student hole?", "why not metro?",
   "ei trip watch koro", report an incident, ask about a road).
@@ -260,18 +285,21 @@ Two views, switchable in the map toolbar (**Street / Schematic**, remembered).
   (`bestTime(MIR->MOT, from 09:50, 8 departures)`), reusing the last trip when none is named; times like
   "9:50" or "সকাল ৯:৫০" are read.
 - Voice input with the same mic and language button as the search box.
-- Suggestion chips under the log; the dock stays open across tabs.
+- Suggestion chips under the log; the drawer stays open across tabs.
 - **Test AI hallucination** (footer) sends a made-up plan ("Bus 99 from Uttara to Banasree, ৳20") and shows
   it **Rejected: not in network**.
 
 ## 12. Accessibility
 
-- Semantic tabs (`role="tab"`, `aria-selected`), buttons with `aria-pressed` for toggles and selected cards,
+- Skip link to the trip planner; `lang="bn"` set on the page in Bangla mode.
+- Semantic tabs (`role="tab"`, `aria-selected`), buttons with `aria-pressed` for toggles, selected tickets and the Admin button,
   `aria-expanded` on the chat button, `aria-busy` on busy buttons and loading areas.
 - Live regions (`aria-live` / `role="status"` / `role="alert"`) for results, chat, banners and form errors.
 - Labels on every input; icon-only buttons have `aria-label`; map hubs are keyboard-focusable.
-- Visible focus colour per theme; status never shown by colour alone (text labels, ⛔ / ✖ / ⏱ icons, dash
-  patterns); reduced-motion respected on the street map.
+- Visible focus ring per theme on every control; every text/background pair passes WCAG AA (`tools/contrast.mjs`);
+  touch targets 40–44 px on phones; status never shown by colour alone (text labels, ⛔ / ✖ / ⏱ glyphs, dash
+  patterns); the journey strip has a text equivalent (the leg list and each segment's title); reduced motion
+  turns off the route draw-in, strip fill and marker pulses.
 - All user text is escaped before rendering.
 
 ## 13. History (what changed, in order)
@@ -302,10 +330,15 @@ Two views, switchable in the map toolbar (**Street / Schematic**, remembered).
    moved into the header on desktop (it used to cover the selected route card at 1400×900), status chips
    with glyphs, confidence-bar marks, Monsoon delta tiles, simulation empty state, Fare Truth basis
    labels, "counts once" duplicate-report message, busy sweep, reduced-motion coverage.
+12. **Night Route redesign** ([`UI-REDESIGN-PLAN.md`](UI-REDESIGN-PLAN.md), KoyJabo as a pattern reference):
+   new tokens (night navy + signal green), vendored fonts and icon sprite (no emoji), the map as the stage
+   with a scrolling planner panel, phone sheet + bottom nav, From / To with A / B pins, sort chips, route
+   tickets with journey strips, chat drawer, info tiles, drawn checkboxes, contrast audit, and the full
+   **English / Bangla switch** with Bangla numerals.
 
 ## 14. How the UI was verified
 
-Headless Chromium at **1400 px dark** and **390 px light**, scripts in `tools/browser-checks/`
+Headless Chromium at **1400 px dark** and **390 px light** (check11 also 1024 and 360 px), scripts in `tools/browser-checks/`
 (see its README to re-run):
 
 | Suite | Checks | Covers |
@@ -317,10 +350,11 @@ Headless Chromium at **1400 px dark** and **390 px light**, scripts in `tools/br
 | `check7.cjs` | 31 | empty search, busy state, double click, latest wins, network down + Retry + banner + back online, simulation Retry, one poll in flight, admin +8% → v2 shown in the breakdown |
 | `check8.cjs` | 26 | Share tab: split bot, start, a second commuter joins (full) and leaves, poll refresh, "Share this rickshaw" from a route leg, chat split bot |
 | `check9.cjs` | 33 | gazette citation + link on the bus leg, banner wording, best time (B1 at 09:50 → 10:30 highlighted, rush chips, arrival; MRT-6 leave now), voice with a stand-in recogniser (bn-BD, live text, Bangla trip parsed, language toggle, blocked mic, spoken chat → `bestTime()`), no-speech-support browser |
-| `check11-ui.cjs` | 62 | finalization regressions at 1400 / 390 / 360 px: map-first phone order, chat button never covers the selected card, Admin tab reachable, text badges, Fare Truth official vs estimate basis, Monsoon empty state and delta tiles equal to the engine delta, duplicate-report message, alert meta in words, confidence marks, reduced motion, no `/app` |
+| `check11-ui.cjs` | 94 | Night Route layout at 1400 / 1024 / 390 / 360 px: map stage on desktop, map-first sheet and fixed bottom nav on phones (all five sections visible, 44 px), From / To / Find visible without scrolling on a phone, first ticket's plate above the fold, journey strip widths ∝ leg minutes, kind label colour = map line colour, vendored fonts loaded, no emoji in header and planner, honesty labels on screen, chat drawer (desktop side / phone full screen) and Escape, 40 px tap targets, 1024 px header and toolbar fit, phone map note not covered, plus the earlier text-badge, Fare Truth basis, Monsoon tiles, duplicate-report, confidence-mark and reduced-motion checks |
+| `check12-i18n.cjs` | 46 | English ↔ Bangla switch at 1400 and 390 px: nav, planner, tickets, directions, Fare Truth (form values unchanged), Monsoon, alerts and network in Bangla; Bangla digits on screen except identifiers; the same routes and minutes in both languages; hub cards not doubled; remembered after reload; exact English restored, including the Monsoon trip name |
 | `static2.cjs` | 20 | the one-file preview from a static host and from `file://` |
 
-All pass on the final tree (17 Oct 2026; 302 + 62 + 20). A never-answering search was also checked by hand: it
+All pass on the final tree (17 Oct 2026; 302 + 94 + 46 + 20), plus `tools/contrast.mjs` (all pairs pass) and an independent review by a separate agent whose 12 findings were fixed and turned into checks above. A never-answering search was also checked by hand: it
 gives up after 15 s with a message and the button comes back.
 
 ## 15. Known limits

@@ -66,7 +66,7 @@ function backupBlock(d) {
   d.backupList = [b.option];
   const shown = [...d.options, ...d.others].find((o) => o.signature === b.option.signature);
   if (shown) shown.isBackup = true;
-  return `<div class="backup"><h3 class="small">${ic('backup')} Backup route <span class="muted">(${sg(b.delta.minutes)} min, ${b.delta.fareLow === b.delta.fareHigh ? sg(b.delta.fareLow) : sg(b.delta.fareLow) + ' to ' + sg(b.delta.fareHigh)} ৳, ${sg(b.delta.transfers)} transfers vs main)</span></h3>
+  return `<div class="backup"><h3 class="small">${ic('backup')} Backup route <span class="muted">(${sg(b.delta.minutes)} min, ${b.delta.fareLow === b.delta.fareHigh ? sg(b.delta.fareLow) : sg(b.delta.fareLow) + ' to ' + sg(b.delta.fareHigh)} ৳, ${sg(b.delta.transfers)} transfer${Math.abs(b.delta.transfers) === 1 ? '' : 's'} vs main)</span></h3>
     <p class="small" style="margin:0 0 6px">${esc(b.trigger)} ${b.distinct === 'no_shared_service' ? 'Shares no bus, train or rickshaw/CNG link with the main route.' : 'Avoids the main route’s most exposed leg.'}${shown ? ` It is the card tagged <b>Backup</b> ${d.options.includes(shown) ? 'above' : 'under “more options”'}.` : ''}</p>${shown ? '' : optCard(b.option, 0, 'backupList')}</div>`;
 }
 function optCard(o, i, group) {
@@ -76,7 +76,7 @@ function optCard(o, i, group) {
   const tags = labels.map((t, j) => `<span class="tag${j === 0 ? ' kind' : ''}${t === 'Cheapest' ? ' rec' : ''}">${t}</span>`).join('');
   return `<button type="button" class="opt k-${kind}" data-g="${group}" data-i="${i}" aria-pressed="${S.sel && S.sel.id === o.id}">
     <div class="t-top"><div class="t-tags">${o.isBackup ? `<span class="tag warn${labels.length ? '' : ' kind'}">Backup</span>` : ''}${tags}${o.fareUnknown ? '<span class="tag warn">fare unknown</span>' : ''}${budgetTag(o)}</div>
-      <div class="t-verify">${o.grounded ? `<span class="badge-ok">${ic('check')}Verified against network ✓</span>` : '<span class="badge-bad">Not verified</span>'}</div></div>
+      <div class="t-verify">${o.grounded ? `<span class="badge-ok">Verified against network ✓</span>` : '<span class="badge-bad">Not verified</span>'}</div></div>
     <div class="nums"><span>${o.totalMinutes} <small>min</small></span><span>${rng(o.fareRangeLow, o.fareRangeHigh)} <small>${o.student ? 'student' : 'regular'}</small></span><span>${o.transfers} <small>transfer${o.transfers === 1 ? '' : 's'}</small></span></div>
     ${pills(o)}${whyLine(o)}</button>`;
 }

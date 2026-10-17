@@ -13,7 +13,8 @@
 import { store } from './util.js';
 
 const DIGITS = '০১২৩৪৫৬৭৮৯';
-export const bnDigits = (s) => String(s).replace(/[0-9]/g, (d) => DIGITS[d]);
+// numbers become Bangla digits; identifiers that mix letters and digits (B4, MRT6, u-5018…, W39gp) stay as typed
+export const bnDigits = (s) => String(s).replace(/[A-Za-z0-9_-]*[0-9][A-Za-z0-9_-]*/g, (tok) => (/[A-Za-z]/.test(tok) ? tok : tok.replace(/[0-9]/g, (d) => DIGITS[d])));
 
 // content that must stay as typed or as sent: code, user posts and messages, sample Banglish inputs, ids
 const SKIP = 'script, style, code, svg.sprite, textarea, #me, .toolchip, .msg.user, .reply, .quote, #ingest-examples, #chat-suggest, [translate="no"], .leaflet-control-attribution';
@@ -129,6 +130,9 @@ const EXACT = {
   'Joined an open share going there.': 'সেদিকে যাওয়া একটি চালু শেয়ারে যোগ দিয়েছেন।', 'Share posted. Others at the hub can join for the next 20 min.': 'শেয়ার পোস্ট হয়েছে। হাবের অন্যরা পরের ২০ মিনিট যোগ দিতে পারবেন।',
   'Students with ID pay half on buses (minimum ৳10).': 'আইডি থাকলে শিক্ষার্থীরা বাসে অর্ধেক ভাড়া দেন (সর্বনিম্ন ৳১০)।', 'No student discount on this mode.': 'এই যানবাহনে শিক্ষার্থী ছাড় নেই।', 'Student half fare applied (bus only).': 'শিক্ষার্থীর অর্ধেক ভাড়া ধরা হয়েছে (শুধু বাসে)।',
   'MRT: use the Farmgate station entrance; the bus stop is on the opposite side of the road.': 'মেট্রো: ফার্মগেট স্টেশনের প্রবেশপথ ব্যবহার করুন; বাস স্টপ রাস্তার উল্টো পাশে।',
+  'Approve': 'অনুমোদন', 'Clear flag': 'চিহ্ন সরান', 'Nothing flagged.': 'কিছু চিহ্নিত নেই।', 'Saved. New searches use this note.': 'সংরক্ষিত। নতুন খোঁজে এই নোট ব্যবহার হবে।',
+  'ai_ingest': 'এআই-পঠিত পোস্ট', 'auto_downgraded': 'স্বয়ংক্রিয়ভাবে কমানো', 'cache': 'ক্যাশ', 'rules': 'নিয়ম', 'llm': 'এআই', 'off': 'বন্ধ', 'live': 'চালু',
+  'full': 'পূর্ণ', 'Saving…': 'সংরক্ষণ হচ্ছে…', 'Running…': 'হিসাব হচ্ছে…', 'Checking later departures…': 'পরের সময়গুলো দেখা হচ্ছে…',
   'Every connection between these hubs is closed or filtered out by the current disruptions and your filters.': 'বর্তমান বিঘ্ন ও আপনার ফিল্টারের কারণে এই হাবগুলোর মধ্যে সব সংযোগ বন্ধ।',
 };
 
@@ -144,7 +148,7 @@ const FRAGMENTS = [
   [/^(\d+) more option\(s\)$/, 'আরও $1টি বিকল্প'],
   [/^(\d+) route\(s\) might fit your budget \(typical fare fits, top estimate does not\)$/, '$1টি রুট বাজেটে হতে পারে (সাধারণ ভাড়া মেলে, সর্বোচ্চ অনুমান মেলে না)'],
   [/^Fits ৳(\d+)$/, '৳$1-এর মধ্যে'], [/^Might fit ৳(\d+)$/, '৳$1-এ হতে পারে'],
-  [/^\(([+-]?\d+) min, ([+-]?\d+)(?: to ([+-]?\d+))? ৳, ([+-]?\d+) transfers vs main\)$/, (m, a, b, c, d) => `(মূল রুটের চেয়ে ${a} মিনিট, ${c ? `${b} থেকে ${c}` : b} ৳, ${d} বদল)`],
+  [/^\(([+-]?\d+) min, ([+-]?\d+)(?: to ([+-]?\d+))? ৳, ([+-]?\d+) transfers? vs main\)$/, (m, a, b, c, d) => `(মূল রুটের চেয়ে ${a} মিনিট, ${c ? `${b} থেকে ${c}` : b} ৳, ${d} বদল)`],
   [/Use if any service on the main route stops \(most exposed: ([^)]+)\)\./g, 'মূল রুটের কোনো সার্ভিস বন্ধ হলে এটি নিন (সবচেয়ে ঝুঁকিতে: $1)।'],
   [/Use if (.+?) stops\./g, '$1 বন্ধ হলে এটি নিন।'],
   [/Shares no bus, train or rickshaw\/CNG link with the main route\./g, 'মূল রুটের সাথে কোনো বাস, ট্রেন বা রিকশা/সিএনজি সংযোগ মেলে না।'],
@@ -206,10 +210,12 @@ const FRAGMENTS = [
   [/^Ignores fading report at (.+?) \(([\d.]+), last verified (\d+) min ago\)$/, '$1-এর ম্লান রিপোর্ট বাদ ($2, শেষ যাচাই $3 মিনিট আগে)'],
   [/^Ignores disputed report at (.+?) \(conflicting votes\)$/, '$1-এর বিতর্কিত রিপোর্ট বাদ (পরস্পরবিরোধী ভোট)'],
   // engine sentences: fares and best time
-  [/^: (৳\d+) is (\d+)% above the expected (৳[\d–]+)\.(.*)$/, (m, c, p, e, rest) => `: ${c} প্রত্যাশিত ${e}-এর চেয়ে ${p}% বেশি।${tr(rest)}`],
-  [/^: (৳\d+) is within the expected (৳[\d–]+)\.(.*)$/, (m, c, e, rest) => `: ${c} প্রত্যাশিত ${e}-এর মধ্যে।${tr(rest)}`],
-  [/^: (৳\d+) is below the expected (৳[\d–]+)\.(.*)$/, (m, c, e, rest) => `: ${c} প্রত্যাশিত ${e}-এর কম।${tr(rest)}`],
+  [/^: (৳\d+) is (\d+)% above the expected (৳[\d–]+)\.(.*)$/, (m, c, p, e, rest) => `: ${c} প্রত্যাশিত ${e}-এর চেয়ে ${p}% বেশি।${rest}`],
+  [/^: (৳\d+) is within the expected (৳[\d–]+)\.(.*)$/, (m, c, e, rest) => `: ${c} প্রত্যাশিত ${e}-এর মধ্যে।${rest}`],
+  [/^: (৳\d+) is below the expected (৳[\d–]+)\.(.*)$/, (m, c, e, rest) => `: ${c} প্রত্যাশিত ${e}-এর কম।${rest}`],
   [/ Student half fare applied \(bus only\)\./g, ' শিক্ষার্থীর অর্ধেক ভাড়া ধরা হয়েছে (শুধু বাসে)।'],
+  [/ Students with ID pay half on buses \(minimum ৳(\d+)\)\./g, ' আইডি থাকলে শিক্ষার্থীরা বাসে অর্ধেক ভাড়া দেন (সর্বনিম্ন ৳$1)।'],
+  [/ No student discount on this mode\./g, ' এই যানবাহনে শিক্ষার্থী ছাড় নেই।'],
   [/ Student half fare applies to buses only\./g, ' শিক্ষার্থীর অর্ধেক ভাড়া শুধু বাসে।'],
   [/ This amount is flagged as unrealistic \(S1\) and not counted in stats\./g, ' এই অঙ্কটি অবাস্তব হিসেবে চিহ্নিত (S1), পরিসংখ্যানে ধরা হয়নি।'],
   [/^Community reports for this trip and mode under the current fare table: (\d+)(?:, median ৳(\d+))?\.$/, (m, n, md) => `বর্তমান ভাড়ার টেবিলে এই যাত্রা ও যানবাহনের যাত্রী রিপোর্ট: ${n}${md ? `, মাঝামাঝি ৳${md}` : ''}।`],
@@ -235,7 +241,7 @@ const FRAGMENTS = [
   [/^Your usual route is cut at (.+?): (.+?)\. Take (.+?) instead: (\d+) min \(([+-]?\d+) min vs usual\), (.+)\.$/, 'আপনার সাধারণ রুট $1-এ বন্ধ: $2। এর বদলে $3 নিন: $4 মিনিট (সাধারণের চেয়ে $5 মিনিট), $6।'],
   [/^Your usual route is cut at (.+?) \((.+?)\) and no open route remains right now\.$/, 'আপনার সাধারণ রুট $1-এ বন্ধ ($2), এখন কোনো চালু রুট নেই।'],
   // stats title on the results header
-  [/^(\d+) search steps, (\d+) hub paths, (\d+) distinct routes; rejected: (.+); links skipped: (.+)$/, '$1 ধাপ খোঁজা, $2টি হাব-পথ, $3টি আলাদা রুট; বাদ: $4; বাদ পড়া সংযোগ: $5'],
+  [/^(\d+) search steps, (\d+) hub paths, (\d+) distinct routes; rejected: (.+); links skipped: (.+)$/, (m, a, b, c, d, e) => `${a} ধাপ খোঁজা, ${b}টি হাব-পথ, ${c}টি আলাদা রুট; বাদ: ${d === 'none' ? 'নেই' : d}; বাদ পড়া সংযোগ: ${e === 'none' ? 'নেই' : e}`],
   [/^(MRT-6|Bus|Leguna|Rickshaw|CNG|Walk) (\S+): (\d+(?:\.\d+)?) min(?: incl\. (\d+) min wait)?$/, (m, md, l, n, w) => `${EXACT[md]} ${l}: ${n} মিনিট${w ? `, ${w} মিনিট অপেক্ষাসহ` : ''}`],
   [/^(.+?) \((.+?)\) · status (\w+)\. Click: set To · Shift\+click: set From$/, (m, n, b, s) => `${b} · অবস্থা ${EXACT[s] || s}। ক্লিক: গন্তব্য · Shift+ক্লিক: শুরু`],
   [/^(.+?): set as destination$/, '$1: গন্তব্য করুন'],
@@ -257,7 +263,30 @@ const FRAGMENTS = [
   [/^Rickshaw ([A-Z]{3}-[A-Z]{3})$/, 'রিকশা $1'], [/^CNG ([A-Z]{3}-[A-Z]{3})$/, 'সিএনজি $1'], [/^Walk (.+)$/, 'হাঁটা: $1'],
   // labels joined with commas (best time, tooltips)
   [/^(?:(?:Cheapest|Fastest|Balanced|Fewest transfers)(?:, |$))+$/, (m) => m.split(', ').map((x) => EXACT[x] || x).join(', ')],
-  [/ transfers vs main\)/g, ' বদল, মূল রুটের তুলনায়)'], [/\bnot running\b/g, 'চলছে না'],
+  [/ transfers? vs main\)/g, ' বদল, মূল রুটের তুলনায়)'], [/\bnot running\b/g, 'চলছে না'],
+  // best time (server besttime.js)
+  [/^(.+?): leave at (\d\d:\d\d) instead of (\d\d:\d\d) — (\d+) → (\d+) min on the road \((\d+) min less(?:, ৳(\d+) cheaper)?\)\. You arrive (\d\d:\d\d) instead of (\d\d:\d\d)\.$/,
+    (m, s, b, n, a1, a2, less, tk, arr, arrNow) => `${s}: ${n}-এর বদলে ${b}-এ বের হন — রাস্তায় ${a1} → ${a2} মিনিট (${less} মিনিট কম${tk ? `, ৳${tk} সস্তা` : ''})। পৌঁছাবেন ${arrNow}-এর বদলে ${arr}-এ।`],
+  [/^(.+?): leave before (\d\d:\d\d) — from then the trip takes (\d+) min instead of (\d+) \(rush hour\)\.$/, '$1: $2-এর আগে বের হন — তারপর যাত্রায় $4-এর বদলে $3 মিনিট লাগবে (ভিড়ের সময়)।'],
+  [/^Rush hour is set by hand in the simulator, so the departure time does not change these routes\. Clear the scenario to compare times\.$/, 'সিমুলেটরে ভিড়ের সময় হাতে চালু করা, তাই ছাড়ার সময়ে এই রুট বদলায় না। সময় তুলনা করতে পরিস্থিতি মুছুন।'],
+  [/^rush$/, 'ভিড়'], [/^No route to compare\.$/, 'তুলনার মতো রুট নেই।'],
+  // watch, filters, parser line, alerts, share, chat meta, admin
+  [/^Clear\. Usual route (\d+) min, (.+)\.$/, 'পরিষ্কার। সাধারণ রুট $1 মিনিট, $2।'],
+  [/^(\d+) active$/, '$1টি চালু'], [/^Avoid (.+)$/, '$1 এড়ান'],
+  [/(^| · )avoiding ([^·]+)/g, (m, p, h) => `${p}${h.trim()} এড়িয়ে`], [/(^| · )≤ (৳\d+)(?= ·|$)/g, '$1সর্বোচ্চ $2'], [/(^| · )≤ (\d+) transfers(?= ·|$)/g, '$1সর্বোচ্চ $2 বদল'], [/(^| · )≤ (\d+) min(?= ·|$)/g, '$1সর্বোচ্চ $2 মিনিট'],
+  [/(^| · )single mode only(?= ·|$)/g, '$1শুধু একটি যানবাহন'], [/(^| · )no ([A-Za-z/-]+)(?= ·|$)/g, (m, p, x) => `${p}${x.split('/').map((y) => EXACT[y] || y).join('/')} ছাড়া`],
+  [/^Read by (AI|rule parser): intent (\w+)$/, (m, w, i) => `পড়েছে ${w === 'AI' ? 'এআই' : 'নিয়মভিত্তিক পার্সার'}: উদ্দেশ্য ${i}`],
+  [/Filed as unverified \(soft effect until confirmed\)\./g, 'যাচাই হয়নি হিসেবে জমা হয়েছে (নিশ্চিত না হওয়া পর্যন্ত হালকা প্রভাব)।'],
+  [/Matched an open alert: counted as your confirmation\./g, 'চালু একটি সতর্কতার সাথে মিলেছে: আপনার নিশ্চিতকরণ হিসেবে গোনা হয়েছে।'],
+  [/Matched an open alert you already reported or voted on, so it counts once\. Press “Be someone else” to confirm as another commuter\./g, 'আপনি আগেই জানিয়েছেন বা ভোট দিয়েছেন, তাই একবারই গোনা হবে। অন্য যাত্রী হিসেবে নিশ্চিত করতে “অন্য যাত্রী হিসেবে” চাপুন।'],
+  [/ Confidence ([\d.]+) →$/, ' আস্থা $1 →'],
+  [/ · AI (off|live|fallback|cache)$/, (m, x) => ` · এআই ${({ off: 'বন্ধ', live: 'চালু', fallback: 'ব্যাকআপ', cache: 'ক্যাশ' })[x]}`],
+  [/^(gridlock|waterlogging|protest|construction|accident|blockade|flood|rain): /, (m, t) => `${EXACT[t] || t}: `],
+  [/^(\d+)\/(\d+) riders?( \(you are in\))? · (?:full|(\d+) min left)(?: · now (৳[\d–]+) each(?:, (৳[\d–]+) each if one more joins)?)?$/,
+    (m, a, b, me, left, now, more) => `${a}/${b} যাত্রী${me ? ' (আপনি আছেন)' : ''} · ${left ? `${left} মিনিট বাকি` : 'পূর্ণ'}${now ? ` · এখন প্রতিজন ${now}${more ? `, আরেকজন এলে প্রতিজন ${more}` : ''}` : ''}`],
+  [/^AI: rules$/, 'এআই: নিয়ম'], [/^AI: (live|fallback|cache|off)$/, (m, x) => `এআই: ${({ off: 'বন্ধ', live: 'চালু', fallback: 'ব্যাকআপ', cache: 'ক্যাশ' })[x]}`], [/^intent: (\w+)(.*)$/, (m, i, r) => `উদ্দেশ্য: ${i}${r.replace(' · wording by AI, numbers checked', ' · ভাষা এআই-এর, সংখ্যা যাচাই করা')}`],
+  [/^Typical fare ~(৳\d+) fits, but it can reach (৳\d+)\.$/, 'সাধারণ ভাড়া ~$1 মেলে, তবে $2 পর্যন্ত হতে পারে।'],
+  [/^With no change, /, 'কোনো পরিবর্তন ছাড়া '],
   // fare sources (server fare table)
   [/^Govt gazette \(BRTA chart\), (৳[\d.]+)\/km, minimum (৳\d+), effective (.+?)( ·)?$/, (m, r, mn, d, dot) => `সরকারি গেজেট (বিআরটিএ চার্ট), ${r}/কিমি, সর্বনিম্ন ${mn}, কার্যকর ${d}${dot || ''}`],
   [/^MRT-6 fare policy, (৳\d+)\/km, (৳[\d–]+) \(official fare is a station chart; per-km rule approximates it\)( ·)?$/, (m, r, rg, dot) => `মেট্রো রেলের ভাড়া নীতি, ${r}/কিমি, ${rg} (সরকারি ভাড়া স্টেশনভিত্তিক চার্ট; কিমি-হিসাব আনুমানিক)${dot || ''}`],

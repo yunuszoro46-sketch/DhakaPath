@@ -37,7 +37,17 @@ export function initChat() {
   actions.openChat = openChat; actions.addMsg = add;
   $('#chat-toggle').onclick = () => openChat($('#chat-dock').hidden);
   $('#chat-close').onclick = () => openChat(false);
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('#chat-dock').hidden) { openChat(false); $('#chat-toggle').focus(); } });
+  document.addEventListener('keydown', (e) => {
+    const dock = $('#chat-dock'); if (dock.hidden) return;
+    if (e.key === 'Escape') { openChat(false); $('#chat-toggle').focus(); return; }
+    // on phones the chat covers the screen: keep Tab inside it (on desktop it is a side drawer and the page stays usable)
+    if (e.key === 'Tab' && matchMedia('(max-width: 1023px)').matches) {
+      const f = $$('#chat-dock button, #chat-dock input').filter((x) => !x.disabled && x.offsetParent);
+      if (!f.length) return;
+      if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f[f.length - 1].focus(); }
+      else if (!e.shiftKey && (document.activeElement === f[f.length - 1] || !dock.contains(document.activeElement))) { e.preventDefault(); f[0].focus(); }
+    }
+  });
   $('#chat-form').addEventListener('submit', (e) => { e.preventDefault(); sendChat($('#chat-in').value); });
   const sugg = ['Dhanmondi theke Motijheel, student', 'ar kono option?', 'why not metro?', 'student hole?', 'Farmgate bondho, onno route?', 'what if Science Lab e brishti hoy?', 'conductor 40 chaise Farmgate theke Motijheel, thik ache?', 'Science Lab e pani jome gese', 'ei alert ta ki still thik?', 'student half-fare ki metro te hoy?', 'ei trip watch koro'];
   $('#chat-suggest').innerHTML = sugg.map((s) => `<button type="button" class="chip">${esc(s)}</button>`).join('');

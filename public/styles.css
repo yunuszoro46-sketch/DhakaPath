@@ -72,7 +72,7 @@ code { font-size: .9em; }
 .bn, :not(html)[lang="bn"] { font-family: var(--font-bn); line-height: 1.6; }
 /* Bangla mode (i18n.js): Bangla text and numerals everywhere; the small Bangla echoes next to English labels go away */
 :root[data-lang="bn"] body { line-height: 1.6; }
-:root[data-lang="bn"] h1 .bn, :root[data-lang="bn"] h2 .bn, :root[data-lang="bn"] .od-lbl .bn, :root[data-lang="bn"] .find .bn, :root[data-lang="bn"] .skeleton .bn { display: none; }
+:root[data-lang="bn"] .bn-echo, :root[data-lang="bn"] h1 .bn, :root[data-lang="bn"] h2 .bn, :root[data-lang="bn"] .od-lbl .bn, :root[data-lang="bn"] .find .bn, :root[data-lang="bn"] .skeleton .bn { display: none; }
 :root[data-lang="bn"] .tabs button, :root[data-lang="bn"] .pref-btn, :root[data-lang="bn"] .rchip span { font-size: var(--fs-sm); }
 .langbtn { width: auto; min-width: 40px; padding: 0 10px; font-family: var(--font-bn); font-weight: 700; font-size: var(--fs-sm); border: 1px solid var(--line); }
 .langbtn[aria-pressed="true"] { font-family: var(--font); }
@@ -342,6 +342,7 @@ h1.hero .bn { font-size: .5em; margin-left: 4px; white-space: nowrap; }
 .t-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
 .t-tags .tag { margin: 0; background: transparent; color: var(--muted); padding: 0; font-weight: 600; }
 .t-tags .tag.kind { background: var(--kind); color: #fff; padding: 2px 10px; font-weight: 700; }
+.opt.k-fastest .t-tags .tag.kind, .opt.k-backup .t-tags .tag.kind { color: #03140c; }   /* dark text keeps 4.5:1 on the green and orange */
 .t-tags .tag.warn { color: var(--warn); }
 .t-tags .tag.rec:not(.kind) { color: var(--ok); }
 .t-verify { flex: 0 0 auto; }
@@ -515,7 +516,7 @@ dialog img { width: 100%; height: auto; border-radius: var(--r-md); display: blo
 .pref-btn:hover:not(:disabled) { color: var(--ink); background: var(--surface2); }
 .pref-btn:disabled { opacity: .4; cursor: not-allowed; }
 .pref-btn.active { color: #fff; }
-.pref-btn.active.fastest { background: var(--k-fastest); }
+.pref-btn.active.fastest { background: var(--k-fastest); color: #03140c; }
 .pref-btn.active.cheapest { background: var(--k-cheapest); }
 .pref-btn.active.balanced { background: var(--k-balanced); }
 .pref-btn.active.all { background: #334155; }
@@ -626,8 +627,9 @@ input[type=checkbox]:disabled { opacity: .5; cursor: not-allowed; }
   .panel-col { grid-column: 1; grid-row: 1; overflow-y: auto; border-right: 1px solid var(--line); scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
   .map-col { grid-column: 2; grid-row: 1; min-height: 0; }
   .map-card { height: 100%; }
-  .map-toolbar { position: absolute; top: var(--sp-3); left: var(--sp-3); right: 200px; z-index: 600; padding: 0; justify-content: flex-start; pointer-events: none; }
+  .map-toolbar { position: absolute; top: var(--sp-3); left: var(--sp-3); right: 200px; z-index: 600; padding: 0; justify-content: flex-start; flex-wrap: wrap; pointer-events: none; }
   .map-toolbar > * { pointer-events: auto; box-shadow: var(--shadow-float); }
+  .map-toolbar .pref-btn-group { flex: 0 0 auto; min-width: 0; }
   .street-wrap, #schematic-wrap { flex: 1; min-height: 0; }
   .lmap { flex: 1; height: auto; min-height: 0; }
   #schematic-wrap { padding-top: 64px; }
@@ -644,8 +646,10 @@ input[type=checkbox]:disabled { opacity: .5; cursor: not-allowed; }
   .brand .bn, .chat-toggle .tl, .tabs button .ic, .clockgroup > .ic { display: none; }
   .chat-toggle { width: 40px; padding: 0; justify-content: center; }
   .tabs { margin-left: var(--sp-2); }
-  .tabs button { padding: 0 8px; }
+  .tabs button { padding: 0 6px; }
   .clockgroup .clock { padding-left: 10px; }
+  .clockgroup .unit { display: none; }
+  .clockgroup button { padding: 0 8px; }
   #ai-badge { padding: 0 10px; font-size: 11px; }
 }
 
@@ -653,7 +657,7 @@ input[type=checkbox]:disabled { opacity: .5; cursor: not-allowed; }
    it like a sheet, and the sections move to a bottom nav (nothing hidden behind sideways scrolling). */
 @media (max-width: 1023px) {
   :root { --map-h: 36vh; }
-  .top { position: sticky; top: 0; }
+  /* the header scrolls away on phones (the bottom nav stays), so it never covers the map controls */
   .modechip { display: none; }
   .lmap { min-height: 260px; }
   .map-toolbar { position: absolute; top: 0; left: 0; right: 0; z-index: 600; padding: var(--sp-2); background: transparent; pointer-events: none; }
@@ -663,8 +667,9 @@ input[type=checkbox]:disabled { opacity: .5; cursor: not-allowed; }
   .map-toolbar #mapview-toggle { position: absolute; left: var(--sp-2); top: 56px; }
   .map-view-toggle { top: 56px; }
   #schematic-wrap { padding-top: 104px; }
-  .street-legend { bottom: 24px; }
-  .street-wrap .map-src { position: absolute; left: 0; bottom: 0; z-index: 500; padding: 2px 8px; font-size: 10px; background: color-mix(in srgb, var(--map-bg) 80%, transparent); border-top-right-radius: 6px; max-width: 60%; }
+  .street-legend { top: 104px; bottom: auto; }
+  .map-col { order: -1; }                       /* planner comes first in the page (keyboard order); the map shows first */
+  .street-wrap .map-src { position: absolute; left: 0; top: calc(max(var(--map-h), 260px) - 20px); bottom: auto; z-index: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 2px 8px; font-size: 10px; line-height: 1.4; background: color-mix(in srgb, var(--map-bg) 85%, transparent); border-top-right-radius: 6px; max-width: 55%; }
   .tile-note { position: static; transform: none; width: auto; max-width: none; margin: var(--sp-2) var(--sp-2) 0; box-shadow: none; font-size: 11px; padding: 6px 10px; }
   .map-card { padding-bottom: var(--sp-4); }
   .demo-banner { background: var(--map-bg); border-top: 0; padding-top: 6px; padding-bottom: 6px; }
@@ -709,12 +714,17 @@ input[type=checkbox]:disabled { opacity: .5; cursor: not-allowed; }
   .nl input { flex: 1 1 calc(100% - 32px); }
   .nl .voice { margin-right: auto; }
   .opts-row .pill:not(.check) .ic { display: none; }
-  .pill input:not([type=checkbox]) { width: 96px !important; }
+  .pill input:not([type=checkbox]) { width: 104px !important; }
+  .pill input[type=time] { padding: 0 4px !important; }
   .opt .nums { gap: var(--sp-4); } .opt .nums span { font-size: 1.875rem; }
   .delta-tiles b { font-size: 1.375rem; }
   .delta-tiles div:last-child b { font-size: var(--fs-sm); }
 }
 @media (max-width: 380px) {
+  .iconbtn, .chat-toggle { width: 40px; height: 40px; }
+  .langbtn { min-width: 40px; padding: 0 6px; }
+  .wordmark { font-size: 1.0625rem; }
+  .brand .mark { width: 26px; height: 26px; }
   .clockgroup button { padding: 0 7px; }
   .pill.check small { display: none; }
   .pill input:not([type=checkbox]) { width: 92px !important; }

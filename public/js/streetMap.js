@@ -5,7 +5,7 @@
 // (S.result / S.sim); the map never computes or validates routes. Positions are approximate area
 // centres. If Leaflet is missing the schematic SVG map is used; if tiles fail the vector layer stays
 // on a plain background with a note.
-import { $, esc, rng, ic } from './util.js';
+import { $, $$, esc, rng, ic } from './util.js';
 import { S, actions, hubName } from './store.js';
 
 export const ROUTE_COLORS = { cheapest: '#2563eb', fastest: '#16a34a', balanced: '#7c3aed', backup: '#f97316' };
@@ -149,6 +149,8 @@ function draw() {
       <div class="popup-actions"><button type="button" class="btn-set-origin" data-set="origin" data-hub="${h.id}" ${$('#origin').value === h.id ? 'disabled' : ''}>${$('#origin').value === h.id ? '✓ Current Start (A)' : 'Set as Start (A)'}</button><button type="button" class="btn-set-dest" data-set="dest" data-hub="${h.id}" ${$('#destination').value === h.id ? 'disabled' : ''}>${$('#destination').value === h.id ? '✓ Current End (B)' : 'Set as Destination (B)'}</button></div></div>`, { className: 'hub-popup', offset: [0, -12] });
     m.addTo(net);
   }
+  // route and link lines are for the eye and the pointer; keyboard users get the same facts in the planner
+  $$('#lmap path.leaflet-interactive').forEach((p) => { p.setAttribute('tabindex', '-1'); p.setAttribute('focusable', 'false'); });
   $('#lmap-hidden').textContent = hidden.length ? `⚠ ${hidden.length} hub(s) not shown (position missing or outside Dhaka): ${hidden.map((h) => h.name || h.id).join(', ')}` : '';
   $('#lmap-all').innerHTML = viewAll ? `${ic('route')}<span>Focus route</span>` : `${ic('layers')}<span>Show all ${S.net.hubs.length - hidden.length} hubs</span>`;
   // fit only when what is shown changes (polling redraws every few seconds)

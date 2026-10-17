@@ -1,6 +1,6 @@
 // Bootstraps the panels, tabs, theme and the 3-second polling loop (alerts + clock + watched trips).
 import { $, $$, esc, store, ic } from './util.js';
-import { S, actions } from './store.js';
+import { S, actions, hubName } from './store.js';
 import { connect, get, onConnection } from './api.js';
 import { drawMap } from './map.js';
 import { initSearch } from './searchPanel.js';
@@ -66,7 +66,7 @@ function showTab(name) {
   if (name === 'admin') refreshAdmin();
   if (name === 'network') refreshNetwork();
   if (name === 'share') { refreshShares(); $('#sh-bot').textContent || $('#sh-mode').dispatchEvent(new Event('change')); }
-  if (name === 'sim') $('#sim-trip').textContent = `${$('#origin').selectedOptions[0]?.textContent.split(' · ')[0] || ''} → ${$('#destination').selectedOptions[0]?.textContent.split(' · ')[0] || ''}`;
+  if (name === 'sim') $('#sim-trip').textContent = `${hubName($('#origin').value)} → ${hubName($('#destination').value)}`;   // from the data, never from the (possibly translated) option text
 }
 
 // Connection banner: shown after a failed request, hidden (with a short "back online") on the next success.

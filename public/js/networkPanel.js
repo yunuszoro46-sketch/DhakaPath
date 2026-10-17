@@ -20,7 +20,7 @@ export async function refreshNetwork() {
     <td class="num">${l.fareRange ? esc(l.fareRange) : l.mode === 'walk' ? 'free' : '৳' + l.fareRegular}${l.studentEligible ? `<br><span class="small" style="color:var(--ok)">student ৳${l.fareStudent}</span>` : ''}</td>
     <td>${l.studentEligible ? '✓' : '—'}</td><td><span class="lstate ${l.state}">${l.state}</span></td></tr>`).join('');
   $('#net-lines').innerHTML = `<table><thead><tr><th>Line</th><th>Mode</th><th>From → To</th><th class="num">Est. time</th><th class="num">Base fare</th><th>Student ½</th><th>Now</th></tr></thead><tbody>${rows}</tbody></table><p class="muted small">Full-line fares and times; ${esc(b.notice)}</p>`;
-  $('#net-hubs').innerHTML = b.hubs.map((h) => `<div class="hub-card"><b>${esc(h.name)} <span class="muted small">${esc(h.bn)}</span> <span class="hstat ${h.status}">${h.status}</span></b>
+  $('#net-hubs').innerHTML = b.hubs.map((h) => `<div class="hub-card"><b>${esc(h.name)} <span class="muted small bn bn-echo">${esc(h.bn)}</span> <span class="hstat ${h.status}">${h.status}</span></b>
     ${h.alerts.map((a) => `<div class="small">⚠ ${esc(a.type)} · ${a.status} · ${a.effectiveConfidence} · ${a.ageMinutes} min old</div>`).join('')}
     <div class="small muted">${h.lines.length} line(s) · ${esc(h.zone)}</div>${h.landmarks[0] ? `<div class="small muted lm">${ic('pin')}<span>${esc(h.landmarks[0].note_en)}${h.landmarks[0].sample ? ' <i>(sample)</i>' : ''}</span></div>` : ''}</div>`).join('');
 }

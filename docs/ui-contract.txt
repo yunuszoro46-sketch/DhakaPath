@@ -20,6 +20,7 @@
 .leaflet-tooltip                   <- check6.cjs
 .map-col                           <- check11-ui.cjs
 .map-label                         <- check5.cjs
+.map-src                           <- check11-ui.cjs
 .mic                               <- check9.cjs, voice.js
 .modes                             <- check11-ui.cjs
 .mpill                             <- check11-ui.cjs, check6.cjs
@@ -157,7 +158,7 @@
 #ln-note                           <- adminPanel.js
 #ln-stops                          <- adminPanel.js
 #map                               <- check5.cjs, check6.cjs, map.js
-#mapview-toggle                    <- check6.cjs, mapControls.js
+#mapview-toggle                    <- check11-ui.cjs, check6.cjs, mapControls.js
 #maxBudget                         <- check3.cjs, searchPanel.js
 #maxTransfers                      <- searchPanel.js
 #maxTravelTime                     <- check5.cjs, searchPanel.js
@@ -208,8 +209,9 @@
 #sim-retry                         <- check7.cjs, simPanel.js
 #sim-run                           <- check4.cjs, simPanel.js
 #sim-rush                          <- simPanel.js
-#sim-trip                          <- main.js, searchPanel.js
+#sim-trip                          <- check12-i18n.cjs, main.js, searchPanel.js
 #singleMode                        <- check6.cjs, searchPanel.js
+#street-legend                     <- check11-ui.cjs
 #street-wrap                       <- mapControls.js
 #student                           <- check4.cjs, check6.cjs, fareBreakdown.js, main.js, searchPanel.js
 #swap                              <- check11-ui.cjs, searchPanel.js

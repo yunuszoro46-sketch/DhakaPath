@@ -111,6 +111,19 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     ok(`${T} no console or page errors`, errors.length === 0, errors.join(' | '));
     await ctx.close();
   }
+  // tablet landscape / small laptop: the header and the map toolbar must fit at 1024 px
+  { const ctx = await browser.newContext({ viewport: { width: 1024, height: 768 } }); const page = await ctx.newPage();
+    await page.goto(BASE); await page.waitForSelector('#opts .opt'); await wait(400);
+    const g = await page.evaluate(() => { const r = (s) => document.querySelector(s).getBoundingClientRect(); const ov = (a, b) => !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom); return { sw: document.documentElement.scrollWidth, chat: r('#chat-toggle').right, all: ov(r('.pref-btn.all'), r('#mapview-toggle')) }; });
+    ok('[1024] no horizontal overflow; Chat button fully on screen', g.sw <= 1024 && g.chat <= 1024, JSON.stringify(g));
+    ok('[1024] route buttons and map-type switch do not overlap', !g.all);
+    await ctx.close(); }
+  // phone: the "approximate area centres" note is readable, not covered by the legend
+  { const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } }); const page = await ctx.newPage();
+    await page.goto(BASE); await page.waitForSelector('#opts .opt'); await wait(400);
+    const cov = await page.evaluate(() => { const a = document.querySelector('.map-src').getBoundingClientRect(), b = document.querySelector('#street-legend').getBoundingClientRect(); return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom); });
+    ok('[390] map note "approximate area centres" not covered by the legend', !cov);
+    await ctx.close(); }
   await browser.close();
   for (const r of results) console.log(r[0].padEnd(5), r[1], r[2] ? ' ' + r[2] : '');
   console.log(`${results.filter((r) => r[0] === 'PASS').length}/${results.length} passed`);

@@ -1,6 +1,15 @@
 # DhakaPath UI/UX redesign plan (v2 "Night Route")
 
-Status: plan, not yet executed. Written 17 Oct 2026 against the finalized tree (single vanilla frontend, ADR-001).
+Status: **executed 17 Oct 2026** (commits "P0" … "Language switch" in the git history). Written the same day against the finalized tree (single vanilla frontend, ADR-001).
+
+What changed during execution, and why:
+- **Fonts.** Hind Siliguri and Barlow could not be downloaded in the build sandbox (no internet; the npm and pip mirrors were unreachable). Instrument Sans (interface) and Big Shoulders (figures) were available locally under the SIL OFL and are vendored instead; Bangla uses the device's Bangla font.
+- **Icons.** Lucide was not available offline; Material Design Icons (Pictogrammers licence) are used, built into one sprite by `tools/make_icons.py`.
+- **UI/UX Pro Max** ships only its SKILL.md here (no search database), so its workflow was applied by hand together with the `using-ui-stack` rules.
+- **KoyJabo screenshots** arrived mid-build; From / To with in-field pins, sort chips above the results and icon + label + value tiles were adopted from them as patterns.
+- **Full English / Bangla switch** with Bangla numerals was added at the owner's request (`public/js/i18n.js`, `check12-i18n`).
+- **Phases 1–4 were built as one pass** (one stylesheet), with every suite run before each commit.
+- **Fold target revised** (see §7).
 Executor: read this whole file, then `docs/UI-UX.md`, `public/styles.css`, `public/index.html`, `tools/browser-checks/README.md` before touching anything.
 
 ## 0. Ground rules (non-negotiable)

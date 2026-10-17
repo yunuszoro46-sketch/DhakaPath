@@ -16,7 +16,15 @@ node tools/browser-checks/check6.cjs http://localhost:3100/   # street map (50)
 node tools/browser-checks/check7.cjs http://localhost:3100/   # loading, retry, connection banner, fare versions (31)
 node tools/browser-checks/check8.cjs http://localhost:3100/   # ride-share board, two commuters, split bot (26)
 node tools/browser-checks/check9.cjs http://localhost:3100/   # fare sources, best time to leave, voice input (33)
-node tools/browser-checks/check11-ui.cjs http://localhost:3100/   # finalization design-pass regressions (62)
+node tools/browser-checks/check11-ui.cjs http://localhost:3100/   # Night Route layout and UI regressions (91)
+node tools/browser-checks/check12-i18n.cjs http://localhost:3100/ # English / Bangla switch, Bangla numerals (40)
+
+# design review screenshots (1440 / 1024 / 390 / 360 px, dark and light) into a folder of your choice
+node tools/browser-checks/shots.cjs http://localhost:3100/ /tmp/dhakapath-shots
+
+# no browser needed
+node tools/ui-contract.mjs --check   # every id the JS and checks use still exists (docs/ui-contract.txt)
+node tools/contrast.mjs              # WCAG contrast of the colour tokens in both themes
 
 # the one-file offline preview
 npm run preview                      # = python3 tools/bundle.py dist/dhakapath-preview.html
@@ -36,3 +44,8 @@ in `check6` is skipped only when tiles actually fail; screenshots are written ne
 `check9` uses a stand-in `SpeechRecognition` (headless Chromium has no microphone), so it checks the
 voice wiring, not real recognition; try the mic in Chrome or Edge yourself. `check8` pins rush hour
 off for its run (the split-bot numbers are off-peak) and clears the scenario at the end.
+
+Since the Night Route redesign some controls live under a disclosure (*More options* on the Plan tab,
+*Or build your own conditions* in Monsoon); `check3`, `check4` and `check5` open it before using those
+fields, as a person would. `check11` asserts the new layout (map stage on desktop, map-first sheet with a
+bottom nav on phones, ticket strips, chat drawer, fonts, contrast-sensitive labels).

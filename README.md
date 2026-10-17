@@ -4,15 +4,15 @@
 
 The network graph decides routes, fares and alert status; an optional AI layer only reads messages and phrases explanations. **If the AI is down or has no key, everything still works.** One Node.js process, no database, no build step, no required dependencies: `npm start` on a fresh clone is the whole setup.
 
-| Search and route detail | Monsoon Mode (before / after) |
+| Plan: the map is the stage, routes are tickets | Monsoon Mode (before / after) |
 |---|---|
-| ![Search](docs/screenshots/search-desktop.png) | ![Monsoon Mode](docs/screenshots/monsoon-mode.png) |
+| ![Plan](docs/screenshots/search-desktop.png) | ![Monsoon Mode](docs/screenshots/monsoon-mode.png) |
 
-| Alert Ingestor (light theme) | Phone, 390 px |
+| Full Bangla (বাংলা) with Bangla numerals | Phone, 390 px (light) |
 |---|---|
-| ![Alert Ingestor](docs/screenshots/alert-ingestor.png) | ![Mobile](docs/screenshots/mobile.png) |
+| ![Bangla](docs/screenshots/bangla.png) | ![Mobile](docs/screenshots/mobile.png) |
 
-*Screenshots use the schematic map because the build sandbox had no internet; with a connection the street map shows OpenStreetMap tiles.*
+*The build sandbox had no internet, so the street map shows hubs and routes without OpenStreetMap tiles (and a small offline note); with a connection the tiles load underneath.*
 
 > **Seed data, not official.**
 > - Hubs, lines, distances, times and landmark notes in `server/data/seed.json` are assumptions taken from the team's spec. Routes are not official and have not been verified on the ground.
@@ -57,26 +57,31 @@ Secrets stay in `.env` on the server; nothing in the API or the UI echoes them. 
 
 ## The app (one UI at `/`)
 
-Everything runs from `public/` (plain HTML, CSS and ES modules; Leaflet vendored). The selection of this single frontend is recorded in [`docs/architecture/adr-001-single-frontend.md`](docs/architecture/adr-001-single-frontend.md); the design system and every panel are described in [`docs/UI-UX.md`](docs/UI-UX.md).
+Everything runs from `public/` (plain HTML, CSS and ES modules; Leaflet, two OFL fonts and an icon sprite vendored, so it works offline). The selection of this single frontend is recorded in [`docs/architecture/adr-001-single-frontend.md`](docs/architecture/adr-001-single-frontend.md); the "Night Route" design system and every panel are described in [`docs/UI-UX.md`](docs/UI-UX.md) and the redesign plan in [`docs/UI-REDESIGN-PLAN.md`](docs/UI-REDESIGN-PLAN.md).
 
-- **Search** — natural-language box (English, Banglish, Bangla, voice), the constraint form (student, budget, transfers, max minutes, leave-at, avoid hubs/modes, single mode), route cards with **Cheapest / Fastest / Fewest transfers / Balanced** labels and a *Verified against network ✓* badge, the backup route, step-by-step directions (English / Banglish) with landmark notes, the per-leg fare breakdown with its sources, trust-aware "why" lines, Trip Watch, read-aloud, offline card (PNG), best time to leave, and **Fare Truth**.
-- **Network** — commuter view of every line (mode, ends, fare, student eligibility, time, state) and hub statuses.
-- **Simulate (Monsoon Mode)** — presets (Rain at Science Lab, Science Lab flooded, Rush hour, Monsoon evening, Heavy rain south, MRT-6 suspended / delayed) or custom rain-by-zone/hub, heavy rain, blocked hubs, rush, line not running, delays → before/after cards, affected segments, time/fare delta tiles (engine-computed), whether the planned backup holds, and *Apply to the whole app*.
+**Layout.** On a desktop the map fills the screen and the planner is a panel on the left that scrolls on its own; sections (Plan, Network, Monsoon, Alerts, Share) sit in the header, Admin behind the shield button, chat in a drawer. On phones and tablets the map is on top with its controls laid over it, the planner slides up over it like a sheet, and the sections move to a bottom nav.
+
+**English or Bangla.** The **বাং / EN** button switches the whole interface between full English and full Bangla, including Bangla numerals (২৬ মিনিট, ৳১০) and the network's own Bangla hub names, and remembers the choice per browser. `public/js/i18n.js` translates what is on screen (labels, the UI's messages and the engine's common sentences: directions, why lines, backup, fare verdicts, best time, Monsoon explanations, share bot); form values and API requests never change, chat replies and user posts stay as written, and switching back restores the exact English text.
+
+- **Plan** — From / To fields carrying the map's A / B pins, Student and Leave-at always visible, budget / transfers / minutes / avoid / single mode under *More options*, a natural-language box (English, Banglish, Bangla, voice), sort chips (best match, fastest, cheapest, fewest changes), route **tickets**: a kind label coloured like its map line, a plate with minutes, fare and transfers, and a journey strip with one segment per leg sized by its wait + ride minutes, plus a *Verified against network ✓* line, the backup route, step-by-step directions (English / Banglish) with landmark notes, the per-leg fare breakdown with its sources, trust-aware "why" lines, Trip Watch, read-aloud, offline card (PNG), best time to leave, and **Fare Truth**.
+- **Network** — the network's size counted from the data (hubs, lines, links, modes), a commuter view of every line (mode, ends, fare, student eligibility, time, state) and hub statuses.
+- **Monsoon Mode** — scenario tiles (Rain at Science Lab, Science Lab flooded, Rush hour, Monsoon evening, Heavy rain south, MRT-6 suspended / delayed) or custom rain-by-zone/hub, heavy rain, blocked hubs, rush, line not running, delays → before/after cards, affected segments, time/fare delta tiles (engine-computed), whether the planned backup holds, and *Apply to the whole app*.
 - **Alerts (Alert Ingestor)** — paste a street post; it is extracted (AI if a key is set, else the rule parser), matched to the known hubs, and filed as *unverified* (0.30). Confirm / "It's clear" / *Simulate 2 other users confirm*; status chips (unverified → active → fading → expired, disputed) and a confidence bar with the 0.30 / 0.60 marks; the routing effect is always stated in words.
 - **Share** — ride-share board and split bot for rickshaw / CNG legs.
 - **Admin** — password login, moderation queue, landmark notes, add a line, fare chart (versioned, with fuel-price adjustment), lines/edges, audit log, reset.
 - **Chat** — English / Banglish / Bangla; every answer shows *Verified ✓ / Not verified*, the AI mode and the engine tool calls it used.
 
-Dark and light themes (follows the system, remembered), no horizontal overflow at 360–390 px, visible focus, reduced-motion respected, status never shown by colour alone.
+Dark (night navy, the default) and light themes follow the system and are remembered; every text/background pair passes WCAG AA (`node tools/contrast.mjs`); no horizontal overflow from 320 px up; 40–44 px touch targets on phones; visible focus; Escape closes the chat; reduced motion respected; status never shown by colour alone.
 
 ### Demo walkthrough (3 minutes)
 
-1. **Search.** The default trip *Dhanmondi → Motijheel, student*: B4 direct, ৳10 student, with the regular-vs-student breakdown and the gazette citation on the bus leg.
+1. **Plan.** The default trip *Dhanmondi → Motijheel, student*: B4 direct, ৳10 student, with the regular-vs-student breakdown and the gazette citation on the bus leg.
 2. **Alert Ingestor.** Alerts tab → paste *"Science Lab e hatu pani!!"*: filed as unverified (0.30), the map shows a dashed amber link and the route card says *unverified … only +25% time*. Press **Simulate 2 other users confirm**: 0.70, active, solid red, and route cards say *Avoids Science Lab: waterlogging confirmed*. Another person pressing *It's clear* within 10 minutes makes it *disputed* (S2).
-3. **Monsoon Mode.** Simulate tab → **Science Lab flooded (rain + blocked)**: B4 is cut, the detour is B4→B6→B1 via Mohammadpur and Agargaon; the tiles show **+47 min / +৳20** straight from the engine delta. Press **+90 min** in the header afterwards and watch the alert fade.
+3. **Monsoon Mode.** Monsoon tab → **Science Lab flooded (rain + blocked)**: B4 is cut, the detour is B4→B6→B1 via Mohammadpur and Agargaon; the tiles show **+47 min / +৳20** straight from the engine delta. Press **+90 min** in the header afterwards and watch the alert fade.
 4. **Chat.** *"Farmgate theke Motijheel, student"* then *"Farmgate bondho, onno route?"* and *"student hole?"*; each answer carries the Verified badge and tool chips.
 5. **Grounding.** Footer → **Test AI hallucination**: the made-up plan *"Bus 99 from Uttara to Banasree, ৳20"* is rejected.
 6. **Fare Truth.** Asked ৳40 for the bus: overcharge against the official rate; asked ৳60 for a rickshaw: labelled *against the estimated range*.
+7. **বাংলা.** Press **বাং** in the header: the whole app, numbers included, switches to Bangla; **EN** switches back.
 
 Before a presentation: `npm run reset` (or Admin → Reset demo data) restores the seed network and demo alerts.
 
@@ -108,14 +113,17 @@ server/
     chat.js           session context + dispatcher (switch(intent) -> tool) + chat/alert-paste pipelines
   routes/             thin handlers: health network search fare simulate alerts chat clock watch rides demo admin
 public/
-  index.html styles.css        the app and its design tokens
+  index.html styles.css        the app, its icon sprite and its design tokens (one stylesheet)
   js/                          one module per panel: main api store util map streetMap mapControls searchPanel
                                fareBreakdown simPanel alertsPanel adminPanel chatDock clockBar offlineCard
-                               networkPanel watchPanel sharePanel bestTime voice
+                               networkPanel watchPanel sharePanel bestTime voice, and i18n (English / Bangla)
   vendor/leaflet/              Leaflet 1.9.4 + LICENSE
+  vendor/fonts/                Instrument Sans, Big Shoulders (WOFF subsets) + OFL licences
+  vendor/icons/                Material Design Icons sprite + licence
 tests/                         node:test suites (engine, parser, API over real HTTP, hardening, static serving)
-tools/                         reset.js, make_demo_cache.js, make_seed.py, bundle.py (offline preview), browser-checks/
-docs/                          UI-UX.md, architecture/ (ADRs), screenshots/, skills/
+tools/                         reset.js, make_demo_cache.js, make_seed.py, bundle.py (offline preview), make_icons.py,
+                               ui-contract.mjs (selectors the JS and checks rely on), contrast.mjs, browser-checks/
+docs/                          UI-UX.md, UI-REDESIGN-PLAN.md, ui-contract.txt, architecture/ (ADRs), screenshots/, skills/
 ```
 
 Request flow (chat): message → `ai.parseIntent` (LLM, else demo cache, else rule parser) → dispatcher calls an engine tool → `groundRoute` on every route → `explain` (LLM or template) → `{reply, data, grounded, aiMode, toolCalls}`. Every number on screen comes from `engine/`.
@@ -342,7 +350,10 @@ Everything below was run on the final tree in this repository (Node 22.22.0, hea
 |---|---|
 | `npm test` | **96 tests, 96 pass** (`alerts algo api besttime chat2 fare features ground hardening koyjabo parser polish rides router static`) |
 | `node tools/browser-checks/check3.cjs` … `check9.cjs` (against `ADMIN_PASSWORD=admin123 STATE_FILE=off CLOCK_SPEED=0 PORT=3100 npm start`) | **302 / 302** (104 + 34 + 24 + 50 + 31 + 26 + 33) at 1400 px dark and 390 px light |
-| `node tools/browser-checks/check11-ui.cjs` (design-pass regressions: map-first phone layout, chat button never covers a card, text status chips, Fare Truth official-vs-estimate basis, duplicate-report message, Monsoon delta tiles = engine delta, reduced motion, no `/app`) | **62 / 62** at 1400 / 390 / 360 px |
+| `node tools/browser-checks/check11-ui.cjs` (Night Route layout: map stage on desktop, map-first sheet + bottom nav on phones, From/To/Find reachable without scrolling, journey strip ∝ leg minutes, ticket colour = map line colour, vendored fonts, no emoji, honesty labels on screen, chat drawer + Escape, 40 px tap targets, 1024 px header fits, Fare Truth basis, Monsoon tiles = engine delta, reduced motion, no `/app`) | **94 / 94** at 1400 / 1024 / 390 / 360 px |
+| `node tools/browser-checks/check12-i18n.cjs` (English ↔ Bangla: chrome, planner, tickets, directions, Fare Truth, Monsoon, alerts, network in Bangla; Bangla digits everywhere except identifiers; same routes in both languages; remembered after reload; exact English restored) | **46 / 46** at 1400 and 390 px |
+| `node tools/contrast.mjs` (WCAG contrast of every token pair used, both themes, plus route-kind labels) | **all pairs pass** |
+| `node tools/ui-contract.mjs --check` (every id the JS and checks use exists) | **ok** |
 | `node tools/browser-checks/fuzz.mjs` (22 endpoints × malformed bodies) | **0 failures** |
 | `npm run preview` + `node tools/browser-checks/static2.cjs dist/dhakapath-preview.html` | **20 / 20** |
 
@@ -354,6 +365,7 @@ How to re-run the browser checks: `tools/browser-checks/README.md`.
 - OpenStreetMap tiles — the sandbox had no internet, so only the tile-failure fallback was seen; check tile loading on a connected machine before a demo.
 - Real speech recognition — headless Chromium has no microphone; `check9` uses a stand-in recogniser. Try the mic in Chrome or Edge.
 - The **Offline card (PNG)** download is blocked inside some hosted previews; it works in the app run with `npm start`.
+- Bangla rendering was checked with the sandbox's only Bangla font (FreeSans); on phones and laptops the system Bangla font (Noto Sans Bengali, Nirmala UI, Bangla Sangam) is used and looks better. Server validation messages in Admin forms and AI/chat replies are not translated in Bangla mode.
 
 ## Data sources and limitations
 
@@ -379,4 +391,4 @@ git push -u origin main
 
 ## Licence
 
-MIT — see [`LICENSE`](LICENSE). Leaflet is BSD-2-Clause (`public/vendor/leaflet/LICENSE`). Map tiles © OpenStreetMap contributors.
+MIT — see [`LICENSE`](LICENSE). Leaflet is BSD-2-Clause (`public/vendor/leaflet/LICENSE`). Fonts: Instrument Sans and Big Shoulders, SIL Open Font License 1.1 (`public/vendor/fonts/*-OFL.txt`; subset to Latin by `pyftsubset`). Icons: Material Design Icons by Pictogrammers (`public/vendor/icons/LICENSE`; sprite built by `tools/make_icons.py`). Bangla text uses the device's Bangla font (Hind Siliguri, Noto Sans Bengali, Nirmala UI or Bangla Sangam, whichever is installed). Map tiles © OpenStreetMap contributors.
