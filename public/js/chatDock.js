@@ -3,7 +3,9 @@ import { $, $$, esc, ic } from './util.js';
 import { S, actions } from './store.js';
 import { post, currentUser } from './api.js';
 
-const add = (who, text) => { const d = document.createElement('div'); d.className = 'msg ' + who; d.textContent = text; $('#chat-log').appendChild(d); $('#chat-log').scrollTop = 1e9; return d; };
+// a message: the words go in .reply (kept as written in either language); meta chips are appended after it
+const add = (who, text, { ui = false } = {}) => { const d = document.createElement('div'); d.className = 'msg ' + who; const r = document.createElement('span'); if (!ui) r.className = 'reply'; r.textContent = text; d.appendChild(r); $('#chat-log').appendChild(d); $('#chat-log').scrollTop = 1e9; return d; };
+const say = (m, text) => { m.querySelector('span').textContent = text; };
 export const addMsg = add;
 
 export async function sendChat(text) {
@@ -11,9 +13,9 @@ export async function sendChat(text) {
   add('user', text); $('#chat-in').value = '';
   const m = add('bot', '…');
   const r = await post('/api/chat', { message: text, sessionId: currentUser() });
-  if (!r.ok) { m.textContent = r.error.message; return; }
+  if (!r.ok) { say(m, r.error.message); return; }
   const d = r.data;
-  m.textContent = d.reply;
+  say(m, d.reply);
   const meta = document.createElement('span'); meta.className = 'tools';
   meta.innerHTML = `${d.grounded === true ? '<span class="badge-ok">Verified ✓</span> ' : d.grounded === false ? '<span class="badge-bad">Not verified</span> ' : ''}<span class="aichip ${esc(d.aiMode)}">AI: ${esc(d.aiMode === 'off' ? 'rules' : d.aiMode)}</span> intent: ${esc(d.intent)}${d.polished ? ' · wording by AI, numbers checked' : ''}` +
     d.toolCalls.map((t) => `<span class="toolchip">tool: ${esc(t)}</span>`).join('');
@@ -40,7 +42,7 @@ export function initChat() {
   const sugg = ['Dhanmondi theke Motijheel, student', 'ar kono option?', 'why not metro?', 'student hole?', 'Farmgate bondho, onno route?', 'what if Science Lab e brishti hoy?', 'conductor 40 chaise Farmgate theke Motijheel, thik ache?', 'Science Lab e pani jome gese', 'ei alert ta ki still thik?', 'student half-fare ki metro te hoy?', 'ei trip watch koro'];
   $('#chat-suggest').innerHTML = sugg.map((s) => `<button type="button" class="chip">${esc(s)}</button>`).join('');
   $$('#chat-suggest .chip').forEach((b) => b.onclick = () => sendChat(b.textContent));
-  add('bot', 'Assalamualaikum! Ask a trip in English, Banglish or Bangla. The AI only reads your message; routes and fares come from the network graph, and every route answer is checked against it.');
+  add('bot', 'Assalamualaikum! Ask a trip in English, Banglish or Bangla. The AI only reads your message; routes and fares come from the network graph, and every route answer is checked against it.', { ui: true });
   $('#ground-test').onclick = async () => {
     const r = await post('/api/ground-test', {});
     openChat(true);

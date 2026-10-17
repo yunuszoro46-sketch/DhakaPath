@@ -15,13 +15,14 @@ import { initWatch, refreshWatches } from './watchPanel.js';
 import { initMapControls } from './mapControls.js';
 import { initShare, refreshShares, isShareTab } from './sharePanel.js';
 import { initVoice } from './voice.js';
+import { initLang, setHubs } from './i18n.js';
 
 // Returns false when the network cannot be loaded; the page then shows a retry card instead of
 // half-initialised panels.
 async function loadNetwork() {
   const r = await get('/api/network');
   if (!r.ok || !r.data || !Array.isArray(r.data.hubs) || !r.data.hubs.length) return false;
-  S.net = r.data; S.hubStatus = r.data.hubStatus; setClock(r.data.now);
+  S.net = r.data; S.hubStatus = r.data.hubStatus; setClock(r.data.now); setHubs(S.net.hubs);
   const opts = S.net.hubs.map((h) => `<option value="${h.id}">${esc(h.name)} · ${esc(h.bn)}</option>`).join('');
   for (const id of ['#origin', '#destination']) { const v = $(id).value; $(id).innerHTML = opts; if (v) $(id).value = v; }
   $('#avoid-pick').innerHTML = '<option value="">Choose…</option>' + S.net.hubs.map((h) => `<option value="${h.id}">${esc(h.name)}</option>`).join('');
@@ -80,6 +81,7 @@ function initConnectionBanner() {
 }
 
 async function init() {
+  initLang();                                   // English or Bangla (বাংলা), remembered per browser
   initConnectionBanner();
   document.documentElement.dataset.theme = store('dp-theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
   const themeLabel = () => { const dark = document.documentElement.dataset.theme === 'dark'; $('#theme').innerHTML = ic(dark ? 'sun' : 'moon'); $('#theme').setAttribute('aria-label', `Switch to ${dark ? 'light' : 'dark'} theme`); $('#theme').title = `Switch to ${dark ? 'light' : 'dark'} theme`; };

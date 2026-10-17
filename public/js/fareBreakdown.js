@@ -29,7 +29,7 @@ export function renderDetail() {
   const al = (r.alerts || []).filter((a) => o.legs.some((l) => l.stops.includes(a.hubId)));
   const reg = sumRange(o, false), stu = sumRange(o, true);
   d.innerHTML = `<h3>Step by step <span class="langswitch" role="group" aria-label="Directions language"><button type="button" data-lang="en" aria-pressed="${S.lang === 'en'}">English</button><button type="button" data-lang="bn" aria-pressed="${S.lang === 'bn'}">Banglish</button></span></h3>
-    <ol class="steps">${o.legs.map((l) => `<li>${esc(S.lang === 'bn' ? l.instructionBn : l.instruction)}
+    <ol class="steps">${o.legs.map((l) => `<li>${S.lang === 'bn' ? `<span class="quote">${esc(l.instructionBn)}</span>` : esc(l.instruction)}
       ${l.landmark ? `<span class="lm">${ic('pin')}<span>${esc(S.lang === 'bn' && l.landmark.note_bn_banglish ? l.landmark.note_bn_banglish : l.landmark.note_en)}${l.landmark.sample ? '<span class="sample">sample note</span>' : ''}</span></span>` : ''}
       ${l.boardingNote ? `<span class="lm">${ic('info')}<span>${esc(l.boardingNote)}</span></span>` : ''}</li>`).join('')}</ol>
     ${o.transferWalkMinutes ? `<p class="muted small">Includes ${o.transferWalkMinutes} min of transfer walking.</p>` : ''}
@@ -67,7 +67,7 @@ async function fareCheck(ev) {
   const src = d.fareTable && d.fareTable.sources && d.fareTable.sources[d.mode];
   const basis = src ? (src.official ? `<span class="badge-ok">official rate</span> ${esc(src.short)}${src.url ? ` · <a href="${esc(src.url)}" target="_blank" rel="noopener">source</a>` : ''}` : `<span class="badge-est">team estimate</span> ${esc(src.short)}. The verdict compares against that estimate, not an official chart.`) : '';
   $('#fc-out').innerHTML = `<div class="note ${cls}"><b>${esc({ fair: 'Fair', below: 'Below usual', slightly_high: 'Slightly high', overcharge: 'Overcharge' }[d.verdict] || '')}</b>${src && !src.official ? ' <span class="small">(against the estimated range)</span>' : ''}: ${esc(d.text)} ${esc(d.studentNote)}${d.submission.flags.length ? ' This amount is flagged as unrealistic (S1) and not counted in stats.' : ''}</div>
-    <p class="small">${ic('chat')} Say to the conductor: <b>“${esc(d.script)}”</b> ${d.scriptBy === 'ai' ? '<span class="muted">(phrased by AI, numbers checked)</span>' : ''}</p>
+    <p class="small">${ic('chat')} Say to the conductor: <b class="quote">“${esc(d.script)}”</b> ${d.scriptBy === 'ai' ? '<span class="muted">(phrased by AI, numbers checked)</span>' : ''}</p>
     ${basis ? `<p class="small">${basis}</p>` : ''}
     <p class="muted small">Community reports for this trip and mode under the current fare table: ${d.community.reports}${d.community.median != null ? `, median ৳${d.community.median}` : ''}.</p>`;
   actions.refreshAll();

@@ -38,6 +38,7 @@
     <span id="ai-badge" class="chip aichip off">AI: …</span>
     <span id="mode-chip" class="chip muted modechip" title="Where answers are computed">…</span>
     <button type="button" class="iconbtn admin-btn" data-tab="admin" aria-pressed="false" title="Admin: moderation, network and fare chart"><svg class="ic" aria-hidden="true"><use href="#i-admin"/></svg><span class="sr">Admin</span><span id="queue-count" class="count"></span></button>
+    <button id="lang-toggle" class="iconbtn langbtn" type="button" aria-pressed="false" aria-label="বাংলায় দেখুন (Switch to Bangla)" translate="no">বাং</button>
     <button id="theme" class="iconbtn" type="button" aria-label="Switch to light theme"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg></button>
     <button id="chat-toggle" class="chat-toggle" type="button" aria-expanded="false" aria-controls="chat-dock"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg><span class="tl">Chat</span></button>
   </div>
@@ -137,7 +138,7 @@
         <p class="muted small">Checks the amount you were asked against the engine's expected fare for the trip above. Bus and MRT-6 use official rates; rickshaw, CNG and leguna are estimates.</p>
         <form id="fc-form" class="row">
           <label>Asked ৳<input id="fc-amount" type="number" min="0" value="40" inputmode="numeric"></label>
-          <label>Mode<select id="fc-mode"><option>bus</option><option>metro</option><option>leguna</option><option>rickshaw</option><option value="cng">CNG</option></select></label>
+          <label>Mode<select id="fc-mode"><option value="bus">bus</option><option value="metro">metro</option><option value="leguna">leguna</option><option value="rickshaw">rickshaw</option><option value="cng">CNG</option></select></label>
           <button class="ghost" type="submit">Check for this trip</button>
         </form>
         <div id="fc-out" aria-live="polite"></div>
@@ -265,7 +266,7 @@
           <form id="line-form" class="form grid" novalidate>
             <label>Line ID<input id="ln-id" placeholder="B8"></label>
             <label>Name<input id="ln-name" placeholder="B8 Uttara-Banasree"></label>
-            <label>Mode<select id="ln-mode"><option>bus</option><option>metro</option><option>leguna</option><option>rickshaw</option><option value="cng">CNG</option><option>walk</option></select></label>
+            <label>Mode<select id="ln-mode"><option value="bus">bus</option><option value="metro">metro</option><option value="leguna">leguna</option><option value="rickshaw">rickshaw</option><option value="cng">CNG</option><option value="walk">walk</option></select></label>
             <label>Leguna flat fare ৳<input id="ln-flat" type="number" min="1"></label>
             <label class="span2">Stops in order <small>(hub names or IDs, comma-separated)</small><input id="ln-stops" placeholder="UTT, BAD, BAN"></label>
             <label class="span2">km between stops <small>(one per pair)</small><input id="ln-km" placeholder="9, 4"></label>

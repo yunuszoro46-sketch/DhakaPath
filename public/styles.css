@@ -69,7 +69,13 @@ a { color: var(--accent); text-underline-offset: 2px; }
 code { font-size: .9em; }
 .muted { color: var(--muted); } .small { font-size: var(--fs-sm); }
 .sr { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.bn, [lang="bn"] { font-family: var(--font-bn); line-height: 1.6; }
+.bn, :not(html)[lang="bn"] { font-family: var(--font-bn); line-height: 1.6; }
+/* Bangla mode (i18n.js): Bangla text and numerals everywhere; the small Bangla echoes next to English labels go away */
+:root[data-lang="bn"] body { line-height: 1.6; }
+:root[data-lang="bn"] h1 .bn, :root[data-lang="bn"] h2 .bn, :root[data-lang="bn"] .od-lbl .bn, :root[data-lang="bn"] .find .bn, :root[data-lang="bn"] .skeleton .bn { display: none; }
+:root[data-lang="bn"] .tabs button, :root[data-lang="bn"] .pref-btn, :root[data-lang="bn"] .rchip span { font-size: var(--fs-sm); }
+.langbtn { width: auto; min-width: 40px; padding: 0 10px; font-family: var(--font-bn); font-weight: 700; font-size: var(--fs-sm); border: 1px solid var(--line); }
+.langbtn[aria-pressed="true"] { font-family: var(--font); }
 h1 .bn, h2 .bn { font-weight: 600; color: var(--muted); font-size: .72em; letter-spacing: 0; }
 .ic { width: 18px; height: 18px; fill: currentColor; flex: 0 0 auto; vertical-align: -3px; }
 .skip { position: absolute; left: var(--sp-4); top: -60px; z-index: var(--z-tooltip); background: var(--accent); color: var(--accent-ink); padding: var(--sp-2) var(--sp-4); border-radius: var(--r-sm); font-weight: 700; text-decoration: none; }

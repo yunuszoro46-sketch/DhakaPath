@@ -21,9 +21,9 @@ export const store = (k, v) => { try { if (v === undefined) return localStorage.
 export async function busy(btn, label, fn) {
   if (!btn) return fn();
   if (btn.getAttribute('aria-busy') === 'true') return undefined;     // ignore double clicks
-  const prev = btn.innerHTML;
+  const prev = [...btn.childNodes];                  // keep the nodes themselves (the language switch remembers their English text)
   btn.setAttribute('aria-busy', 'true'); btn.disabled = true; if (label) btn.textContent = label;
-  try { return await fn(); } finally { btn.removeAttribute('aria-busy'); btn.disabled = false; btn.innerHTML = prev; }
+  try { return await fn(); } finally { btn.removeAttribute('aria-busy'); btn.disabled = false; btn.replaceChildren(...prev); }
 }
 // "latest wins": a slow, older response must not overwrite a newer one
 export function latest() { let n = 0; return { next: () => ++n, isCurrent: (k) => k === n }; }
