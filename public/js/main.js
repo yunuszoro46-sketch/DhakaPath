@@ -16,6 +16,7 @@ import { initMapControls } from './mapControls.js';
 import { initShare, refreshShares, isShareTab } from './sharePanel.js';
 import { initVoice } from './voice.js';
 import { initLang, setHubs } from './i18n.js';
+import { initResize } from './resize.js';
 
 // Returns false when the network cannot be loaded; the page then shows a retry card instead of
 // half-initialised panels.
@@ -82,6 +83,7 @@ function initConnectionBanner() {
 
 async function init() {
   initLang();                                   // English or Bangla (বাংলা), remembered per browser
+  initResize();                                 // drag the planner edge (desktop) or the sheet handle (phones)
   initConnectionBanner();
   document.documentElement.dataset.theme = store('dp-theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
   const themeLabel = () => { const dark = document.documentElement.dataset.theme === 'dark'; $('#theme').innerHTML = ic(dark ? 'sun' : 'moon'); $('#theme').setAttribute('aria-label', `Switch to ${dark ? 'light' : 'dark'} theme`); $('#theme').title = `Switch to ${dark ? 'light' : 'dark'} theme`; };

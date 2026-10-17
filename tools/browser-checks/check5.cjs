@@ -9,7 +9,7 @@ const ok = (n, c, x = '') => results.push([c ? 'PASS' : 'FAIL', n, String(x).sli
   for (const w of [1400, 390]) {
     const T = `[${w}]`;
     const page0 = async (setup) => {
-      const ctx = await browser.newContext({ viewport: { width: w, height: 900 } });
+      const ctx = await browser.newContext({ viewport: { width: w, height: 900 } }); await ctx.addInitScript(() => { try { localStorage.setItem('dp-map-phone', 'open'); } catch { /* storage off */ } });   // phones start with the map folded; these checks test it open
       const page = await ctx.newPage();
       const errors = [];
       page.on('pageerror', (e) => errors.push(String(e)));

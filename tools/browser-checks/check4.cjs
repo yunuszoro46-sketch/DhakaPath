@@ -13,7 +13,7 @@ const ok = (n, c, x = '') => results.push([c ? 'PASS' : 'FAIL', n, String(x).sli
       const tok = (await (await fetch(BASE + 'api/admin/login', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ password: 'admin123' }) })).json()).data.token;
       await fetch(BASE + 'api/admin/reset', { method: 'POST', headers: { authorization: 'Bearer ' + tok, 'content-type': 'application/json' }, body: '{}' });
     }
-    const ctx = await browser.newContext({ viewport: { width: w, height: 900 }, colorScheme: theme });
+    const ctx = await browser.newContext({ viewport: { width: w, height: 900 }, colorScheme: theme }); await ctx.addInitScript(() => { try { localStorage.setItem('dp-map-phone', 'open'); } catch { /* storage off */ } });   // phones start with the map folded; these checks test it open
     const page = await ctx.newPage();
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e)));

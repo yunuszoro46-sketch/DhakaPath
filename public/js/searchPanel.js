@@ -119,7 +119,7 @@ export function selectOption(o, { keepPref = false } = {}) {
 export function renderFilters() {
   $('#avoid-chips').innerHTML = S.avoid.map((a, i) => `<span class="chip">Avoid ${esc(hubName(a))}<button class="x" type="button" data-i="${i}" aria-label="Remove">×</button></span>`).join('');
   $$('#avoid-chips .x').forEach((b) => b.onclick = () => { S.avoid.splice(Number(b.dataset.i), 1); renderFilters(); });
-  $('#mode-chips').innerHTML = MODES.map((m) => `<button type="button" class="chip" data-m="${m}" aria-pressed="${!S.avoidModes.includes(m)}"><span class="mpill ${m}">${MODE_NAME[m]}</span></button>`).join('');
+  $('#mode-chips').innerHTML = MODES.map((m) => `<button type="button" class="chip mchip ${m}" data-m="${m}" aria-pressed="${!S.avoidModes.includes(m)}" title="${!S.avoidModes.includes(m) ? 'Allowed: tap to avoid' : 'Avoided: tap to allow'}"><span class="mdot" aria-hidden="true"></span>${MODE_NAME[m]}</button>`).join('');
   $$('#mode-chips [data-m]').forEach((b) => b.onclick = () => { const m = b.dataset.m; S.avoidModes = S.avoidModes.includes(m) ? S.avoidModes.filter((x) => x !== m) : [...S.avoidModes, m]; renderFilters(); });
   const lim = ['#maxBudget', '#maxTransfers', '#maxTravelTime'].filter((id) => $(id).value !== '').length + ($('#singleMode').checked ? 1 : 0) ;
   const n = S.avoid.length + S.avoidModes.length + lim; $('#filter-sum').textContent = n ? `${n} active` : '';

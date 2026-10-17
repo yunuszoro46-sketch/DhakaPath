@@ -18,7 +18,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   for (const w of [1400, 390]) {
     const T = `[${w}]`;
     const open = async () => {
-      const ctx = await browser.newContext({ viewport: { width: w, height: 950 } });
+      const ctx = await browser.newContext({ viewport: { width: w, height: 950 } }); await ctx.addInitScript(() => { try { localStorage.setItem('dp-map-phone', 'open'); } catch { /* storage off */ } });   // phones start with the map folded; these checks test it open
       const page = await ctx.newPage(); const errors = [];
       page.on('pageerror', (e) => errors.push(String(e)));
       page.on('console', (m) => { if (m.type() === 'error' && !/status of 4\d\d/.test(m.text()) && !/tile\.openstreetmap\.org/.test((m.location() || {}).url || '')) errors.push(m.text()); });

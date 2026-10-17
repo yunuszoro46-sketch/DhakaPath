@@ -10,7 +10,7 @@ fs.mkdirSync(OUT, { recursive: true });
   const b = await chromium.launch();
   for (const [w, h] of [[1440, 900], [1024, 768], [390, 844], [360, 740]]) {
     for (const scheme of ['dark', 'light']) {
-      const ctx = await b.newContext({ viewport: { width: w, height: h }, colorScheme: scheme, deviceScaleFactor: w < 500 ? 2 : 1 });
+      const ctx = await b.newContext({ viewport: { width: w, height: h }, colorScheme: scheme, deviceScaleFactor: w < 500 ? 2 : 1 }); await ctx.addInitScript(() => { try { localStorage.setItem('dp-map-phone', 'open'); } catch { /* storage off */ } });   // phones start with the map folded; these checks test it open
       const p = await ctx.newPage();
       await p.goto(BASE); await p.waitForSelector('#opts .opt'); await p.waitForTimeout(700);
       await p.screenshot({ path: `${OUT}/${w}-${scheme}-plan.png` });

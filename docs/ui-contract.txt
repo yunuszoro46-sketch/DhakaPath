@@ -28,7 +28,7 @@
 .note                              <- check3.cjs
 .nums                              <- check11-ui.cjs, check12-i18n.cjs, check3.cjs, check4.cjs
 .opt                               <- check11-ui.cjs, check12-i18n.cjs, check3.cjs, check4.cjs, check5.cjs, check6.cjs, check7.cjs, check8.cjs, check9.cjs, searchPanel.js, shots.cjs, static2.cjs
-.panel-col                         <- check11-ui.cjs, main.js
+.panel-col                         <- check11-ui.cjs, main.js, resize.js
 .pill                              <- check11-ui.cjs
 .pills                             <- check6.cjs
 .pref-btn                          <- check11-ui.cjs, check6.cjs, mapControls.js
@@ -146,7 +146,7 @@
 #legend                            <- check5.cjs, map.js
 #line-form                         <- adminPanel.js, check3.cjs
 #line-table                        <- adminPanel.js, check3.cjs
-#lmap                              <- check11-ui.cjs, check6.cjs, streetMap.js
+#lmap                              <- check11-ui.cjs, check6.cjs, resize.js, streetMap.js
 #lmap-all                          <- check6.cjs, streetMap.js
 #lmap-hidden                       <- streetMap.js
 #ln-errors                         <- adminPanel.js, check3.cjs
@@ -158,6 +158,7 @@
 #ln-note                           <- adminPanel.js
 #ln-stops                          <- adminPanel.js
 #map                               <- check5.cjs, check6.cjs, map.js
+#map-toggle                        <- check11-ui.cjs, resize.js
 #mapview-toggle                    <- check11-ui.cjs, check6.cjs, mapControls.js
 #maxBudget                         <- check3.cjs, searchPanel.js
 #maxTransfers                      <- searchPanel.js
@@ -196,6 +197,7 @@
 #sh-start                          <- check8.cjs, sharePanel.js
 #sh-to                             <- sharePanel.js
 #share-form                        <- sharePanel.js
+#sheet-handle                      <- check11-ui.cjs, resize.js
 #sim-apply                         <- check3.cjs, check4.cjs, check7.cjs, simPanel.js
 #sim-clear                         <- check11-ui.cjs, check12-i18n.cjs, check3.cjs, check4.cjs, shots.cjs, simPanel.js
 #sim-custom                        <- check3.cjs, check4.cjs
@@ -211,8 +213,9 @@
 #sim-rush                          <- simPanel.js
 #sim-trip                          <- check12-i18n.cjs, main.js, searchPanel.js
 #singleMode                        <- check6.cjs, searchPanel.js
+#splitter                          <- check11-ui.cjs, resize.js
 #street-legend                     <- check11-ui.cjs
-#street-wrap                       <- mapControls.js
+#street-wrap                       <- mapControls.js, resize.js
 #student                           <- check4.cjs, check6.cjs, fareBreakdown.js, main.js, searchPanel.js
 #swap                              <- check11-ui.cjs, searchPanel.js
 #t-close                           <- check3.cjs, watchPanel.js

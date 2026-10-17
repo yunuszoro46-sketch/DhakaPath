@@ -13,7 +13,7 @@ export async function refreshNetwork() {
   const n = S.net || {}, modes = new Set((n.lines || []).map((l) => l.mode));
   const tile = (icon, v, k) => `<div class="stat"><span class="stat-ic">${ic(icon)}</span><b>${v}</b><span>${k}</span></div>`;
   $('#net-stats').innerHTML = tile('pin', (n.hubs || []).length, 'hubs') + tile('route', (n.lines || []).length, 'lines') + tile('network', (n.edges || []).length, 'links') + tile('transfer', modes.size, 'modes');
-  $('#net-modes').innerHTML = MODES.map((m) => `<button type="button" class="chip" data-m="${m}" aria-pressed="${!hidden.includes(m)}"><span class="mpill ${m}">${MODE_NAME[m]}</span></button>`).join('');
+  $('#net-modes').innerHTML = MODES.map((m) => `<button type="button" class="chip mchip ${m}" data-m="${m}" aria-pressed="${!hidden.includes(m)}" title="${!hidden.includes(m) ? 'Shown: tap to hide' : 'Hidden: tap to show'}"><span class="mdot" aria-hidden="true"></span>${MODE_NAME[m]}</button>`).join('');
   $$('#net-modes [data-m]').forEach((x) => x.onclick = () => { const m = x.dataset.m; const i = hidden.indexOf(m); if (i >= 0) hidden.splice(i, 1); else hidden.push(m); refreshNetwork(); });
   const rows = b.lines.filter((l) => !hidden.includes(l.mode)).map((l) => `<tr><td><b>${esc(l.id)}</b><br><span class="small muted">${esc(l.name)}</span></td><td><span class="mpill ${l.mode}">${MODE_NAME[l.mode]}</span></td>
     <td class="small">${esc(l.fromName)} → ${esc(l.toName)}${l.stops.length > 2 ? `<br><span class="muted">via ${esc(l.stopNames.slice(1, -1).join(', '))}</span>` : ''}</td><td class="num">${l.estMinutes} min</td>

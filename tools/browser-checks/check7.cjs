@@ -12,7 +12,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   const browser = await chromium.launch();
   for (const w of [1400, 390]) {
     const T = `[${w}]`;
-    const ctx = await browser.newContext({ viewport: { width: w, height: 950 } });
+    const ctx = await browser.newContext({ viewport: { width: w, height: 950 } }); await ctx.addInitScript(() => { try { localStorage.setItem('dp-map-phone', 'open'); } catch { /* storage off */ } });   // phones start with the map folded; these checks test it open
     const page = await ctx.newPage();
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e)));

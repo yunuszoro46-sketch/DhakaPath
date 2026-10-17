@@ -76,6 +76,11 @@ Bangla. Checked by `check12-i18n` (40 checks).
 | Tablet and phone (< 1024 px) | Map on top (36 vh) with its controls laid over it; the seed-data strip under it (one line, tap to expand); the planner slides up over the map like a sheet (rounded top, grab handle); a fixed bottom nav holds the five sections, so nothing hides behind sideways scrolling. Chat opens full screen. Toasts move to the bottom, above the nav. |
 | Phone (≤ 640 px) | Header on two rows: brand + Admin, language, theme, chat; then the clock and the AI badge. On the Plan tab From, To and *Find routes* are visible without scrolling at 390 × 844. |
 
+- **Map on demand:** a **Hide map / Show map** button at the top of the planner. Phones start with the map
+  folded (the planner first); desktop starts with it open; the choice is remembered per kind of screen.
+- **Resize:** drag the planner's right edge on desktop (320 px up to leaving the map 420 px), or the sheet's
+  grab handle on phones (map 180 px to 70% of the screen). Both are keyboard separators (arrows, Shift for
+  bigger steps, Home/End, Enter or double-click to reset) and the size is remembered.
 - **Banners:** the **connection banner** (only when the server can't be reached; see §9) and the
   **scenario banner** when a simulated scenario is applied to the whole app, with a **Clear** button.
 - **Trip Watch panel** at the top of the planner when you watch a trip.
@@ -350,7 +355,7 @@ Headless Chromium at **1400 px dark** and **390 px light** (check11 also 1024 an
 | `check7.cjs` | 31 | empty search, busy state, double click, latest wins, network down + Retry + banner + back online, simulation Retry, one poll in flight, admin +8% → v2 shown in the breakdown |
 | `check8.cjs` | 26 | Share tab: split bot, start, a second commuter joins (full) and leaves, poll refresh, "Share this rickshaw" from a route leg, chat split bot |
 | `check9.cjs` | 33 | gazette citation + link on the bus leg, banner wording, best time (B1 at 09:50 → 10:30 highlighted, rush chips, arrival; MRT-6 leave now), voice with a stand-in recogniser (bn-BD, live text, Bangla trip parsed, language toggle, blocked mic, spoken chat → `bestTime()`), no-speech-support browser |
-| `check11-ui.cjs` | 94 | Night Route layout at 1400 / 1024 / 390 / 360 px: map stage on desktop, map-first sheet and fixed bottom nav on phones (all five sections visible, 44 px), From / To / Find visible without scrolling on a phone, first ticket's plate above the fold, journey strip widths ∝ leg minutes, kind label colour = map line colour, vendored fonts loaded, no emoji in header and planner, honesty labels on screen, chat drawer (desktop side / phone full screen) and Escape, 40 px tap targets, 1024 px header and toolbar fit, phone map note not covered, plus the earlier text-badge, Fare Truth basis, Monsoon tiles, duplicate-report, confidence-mark and reduced-motion checks |
+| `check11-ui.cjs` | 104 | Night Route layout at 1400 / 1024 / 390 / 360 px: map stage on desktop, map-first sheet and fixed bottom nav on phones (all five sections visible, 44 px), From / To / Find visible without scrolling on a phone, first ticket's plate above the fold, journey strip widths ∝ leg minutes, kind label colour = map line colour, vendored fonts loaded, no emoji in header and planner, honesty labels on screen, chat drawer (desktop side / phone full screen) and Escape, 40 px tap targets, 1024 px header and toolbar fit, phone map note not covered, plus the earlier text-badge, Fare Truth basis, Monsoon tiles, duplicate-report, confidence-mark and reduced-motion checks |
 | `check12-i18n.cjs` | 46 | English ↔ Bangla switch at 1400 and 390 px: nav, planner, tickets, directions, Fare Truth (form values unchanged), Monsoon, alerts and network in Bangla; Bangla digits on screen except identifiers; the same routes and minutes in both languages; hub cards not doubled; remembered after reload; exact English restored, including the Monsoon trip name |
 | `static2.cjs` | 20 | the one-file preview from a static host and from `file://` |
 

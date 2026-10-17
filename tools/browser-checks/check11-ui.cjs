@@ -18,7 +18,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
   const browser = await chromium.launch();
   for (const [w, scheme] of [[1400, 'dark'], [390, 'light'], [360, 'dark']]) {
     const T = `[${w}]`;
-    const ctx = await browser.newContext({ viewport: { width: w, height: 900 }, colorScheme: scheme, reducedMotion: w === 360 ? 'reduce' : 'no-preference' });
+    const ctx = await browser.newContext({ viewport: { width: w, height: 900 }, colorScheme: scheme, reducedMotion: w === 360 ? 'reduce' : 'no-preference' }); await ctx.addInitScript(() => { try { localStorage.setItem('dp-map-phone', 'open'); } catch { /* storage off */ } });   // phones start with the map folded; these checks test it open
     const page = await ctx.newPage();
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e)));
@@ -112,17 +112,50 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     await ctx.close();
   }
   // tablet landscape / small laptop: the header and the map toolbar must fit at 1024 px
-  { const ctx = await browser.newContext({ viewport: { width: 1024, height: 768 } }); const page = await ctx.newPage();
+  { const ctx = await browser.newContext({ viewport: { width: 1024, height: 768 } }); await ctx.addInitScript(() => { try { localStorage.setItem('dp-map-phone', 'open'); } catch { /* storage off */ } }); const page = await ctx.newPage();
     await page.goto(BASE); await page.waitForSelector('#opts .opt'); await wait(400);
     const g = await page.evaluate(() => { const r = (s) => document.querySelector(s).getBoundingClientRect(); const ov = (a, b) => !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom); return { sw: document.documentElement.scrollWidth, chat: r('#chat-toggle').right, all: ov(r('.pref-btn.all'), r('#mapview-toggle')) }; });
     ok('[1024] no horizontal overflow; Chat button fully on screen', g.sw <= 1024 && g.chat <= 1024, JSON.stringify(g));
     ok('[1024] route buttons and map-type switch do not overlap', !g.all);
     await ctx.close(); }
   // phone: the "approximate area centres" note is readable, not covered by the legend
-  { const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } }); const page = await ctx.newPage();
+  { const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } }); await ctx.addInitScript(() => { try { localStorage.setItem('dp-map-phone', 'open'); } catch { /* storage off */ } }); const page = await ctx.newPage();
     await page.goto(BASE); await page.waitForSelector('#opts .opt'); await wait(400);
     const cov = await page.evaluate(() => { const a = document.querySelector('.map-src').getBoundingClientRect(), b = document.querySelector('#street-legend').getBoundingClientRect(); return !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom); });
     ok('[390] map note "approximate area centres" not covered by the legend', !cov);
+    await ctx.close(); }
+  // the map opens when you want it: phones start folded, the button opens and remembers it
+  { const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } }); const page = await ctx.newPage();
+    await page.goto(BASE); await page.waitForSelector('#opts .opt'); await wait(300);
+    ok('[390] phone: map starts folded, planner first', await page.isHidden('.map-col') && /Show map/.test(await page.textContent('#map-toggle')) && (await page.getAttribute('#map-toggle', 'aria-expanded')) === 'false');
+    await page.click('#map-toggle'); await wait(500);
+    ok('[390] phone: Show map opens it with a usable height', (await page.$eval('#lmap', (e) => e.getBoundingClientRect().height)) >= 180 && /Hide map/.test(await page.textContent('#map-toggle')));
+    const h0 = await page.$eval('#lmap', (e) => e.getBoundingClientRect().height);
+    const hb = await page.$eval('#sheet-handle', (e) => { const r = e.getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; });
+    await page.mouse.move(hb[0], hb[1]); await page.mouse.down(); await page.mouse.move(hb[0], hb[1] + 120, { steps: 6 }); await page.mouse.up(); await wait(300);
+    const h1 = await page.$eval('#lmap', (e) => e.getBoundingClientRect().height);
+    ok('[390] phone: dragging the sheet handle down makes the map taller', h1 > h0 + 80, `${h0} -> ${h1}`);
+    await page.focus('#sheet-handle'); await page.keyboard.press('ArrowUp'); await page.keyboard.press('ArrowUp'); await wait(200);
+    ok('[390] phone: arrow keys on the handle resize too', (await page.$eval('#lmap', (e) => e.getBoundingClientRect().height)) < h1);
+    await page.reload(); await page.waitForSelector('#opts .opt'); await wait(400);
+    ok('[390] phone: open map and its height are remembered', await page.isVisible('#lmap') && Math.abs((await page.$eval('#lmap', (e) => e.getBoundingClientRect().height)) - (h1 - 40)) < 6);
+    await ctx.close(); }
+  // desktop: drag the planner edge; hide the map for a full-width planner
+  { const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } }); const page = await ctx.newPage();
+    await page.goto(BASE); await page.waitForSelector('#opts .opt'); await wait(300);
+    const w0 = await page.$eval('.panel-col', (e) => e.getBoundingClientRect().width);
+    const sp = await page.$eval('#splitter', (e) => { const r = e.getBoundingClientRect(); return [r.x, 450]; });
+    await page.mouse.move(sp[0], sp[1]); await page.mouse.down(); await page.mouse.move(sp[0] + 160, sp[1], { steps: 8 }); await page.mouse.up(); await wait(400);
+    const w1 = await page.$eval('.panel-col', (e) => e.getBoundingClientRect().width), mw = await page.$eval('#lmap', (e) => e.getBoundingClientRect().width);
+    ok('[1440] dragging the planner edge widens the planner and narrows the map', w1 > w0 + 120 && mw < 1440 - w1 + 2, `${w0} -> ${w1}, map ${mw}`);
+    await page.focus('#splitter'); await page.keyboard.press('ArrowLeft'); await wait(150);
+    ok('[1440] the edge is a keyboard separator with a value', (await page.getAttribute('#splitter', 'role')) === 'separator' && Number(await page.getAttribute('#splitter', 'aria-valuenow')) < w1);
+    await page.dblclick('#splitter'); await wait(300);
+    ok('[1440] double-click resets the planner width', Math.abs((await page.$eval('.panel-col', (e) => e.getBoundingClientRect().width)) - 440) < 2);
+    await page.click('#map-toggle'); await wait(300);
+    ok('[1440] Hide map gives the planner the full width', await page.isHidden('.map-col') && (await page.$eval('.panel-col', (e) => e.getBoundingClientRect().width)) > 1300 && (await page.evaluate(() => document.documentElement.scrollWidth)) <= 1440);
+    await page.click('#map-toggle'); await wait(500);
+    ok('[1440] Show map brings it back at full size', (await page.$eval('#lmap', (e) => e.getBoundingClientRect().width)) > 900);
     await ctx.close(); }
   await browser.close();
   for (const r of results) console.log(r[0].padEnd(5), r[1], r[2] ? ' ' + r[2] : '');

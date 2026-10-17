@@ -10,7 +10,7 @@ const nodeLogin = async () => (await (await fetch(BASE + 'api/admin/login', { me
   const browser = await chromium.launch();
   for (const [w, theme] of [[1400, 'dark'], [390, 'light']]) {
     const tok0 = await nodeLogin(); await fetch(BASE + 'api/admin/reset', { method: 'POST', headers: { authorization: 'Bearer ' + tok0, 'content-type': 'application/json' }, body: '{}' });
-    const ctx = await browser.newContext({ viewport: { width: w, height: 900 }, colorScheme: theme });
+    const ctx = await browser.newContext({ viewport: { width: w, height: 900 }, colorScheme: theme }); await ctx.addInitScript(() => { try { localStorage.setItem('dp-map-phone', 'open'); } catch { /* storage off */ } });   // phones start with the map folded; these checks test it open
     const page = await ctx.newPage();
     const errors = [], external = [];
     page.on('pageerror', (e) => errors.push(String(e)));

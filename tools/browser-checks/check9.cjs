@@ -29,7 +29,7 @@ const FAKE = `window.SpeechRecognition = class {
   const browser = await chromium.launch();
   for (const w of [1400, 390]) {
     const T = `[${w}]`;
-    const ctx = await browser.newContext({ viewport: { width: w, height: 950 } });
+    const ctx = await browser.newContext({ viewport: { width: w, height: 950 } }); await ctx.addInitScript(() => { try { localStorage.setItem('dp-map-phone', 'open'); } catch { /* storage off */ } });   // phones start with the map folded; these checks test it open
     await ctx.addInitScript(FAKE);
     const p = await ctx.newPage(); const errors = [];
     p.on('pageerror', (e) => errors.push(String(e)));
@@ -90,7 +90,7 @@ const FAKE = `window.SpeechRecognition = class {
     await ctx.close();
   }
   // unsupported browser: no SpeechRecognition at all
-  const ctx = await browser.newContext({ viewport: { width: 1000, height: 800 } });
+  const ctx = await browser.newContext({ viewport: { width: 1000, height: 800 } }); await ctx.addInitScript(() => { try { localStorage.setItem('dp-map-phone', 'open'); } catch { /* storage off */ } });   // phones start with the map folded; these checks test it open
   await ctx.addInitScript('delete window.SpeechRecognition; delete window.webkitSpeechRecognition; Object.defineProperty(window, "webkitSpeechRecognition", { value: undefined });');
   const p = await ctx.newPage(); await p.goto(BASE); await p.waitForSelector('#opts .opt');
   await p.click('#nl-form .mic', { force: true }); await wait(200);   // aria-disabled, still clickable for the explanation

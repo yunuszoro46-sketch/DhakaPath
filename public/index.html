@@ -48,6 +48,8 @@
 
 <main class="layout" id="main">
   <section class="panel-col" aria-label="Trip planner and tools">
+    <div class="panel-tools"><button type="button" class="ghost small map-toggle" id="map-toggle" aria-controls="map-col" aria-expanded="true"><svg class="ic" aria-hidden="true"><use href="#i-legend"/></svg><span class="mt-label">Hide map</span></button></div>
+    <div class="sheet-handle" id="sheet-handle" role="separator" aria-orientation="horizontal" aria-label="Resize the map: drag, or use the arrow keys" tabindex="0" title="Drag to make the map taller or shorter (double-click to reset)"></div>
     <section id="watch-panel" class="card watch-panel" hidden aria-label="Trip Watch">
       <div class="row between"><h2><svg class="ic" aria-hidden="true"><use href="#i-watch"/></svg> Trip Watch</h2><span class="muted small">re-checked every few seconds against confirmed alerts and rush hour</span></div>
       <div id="watch-list"></div>
@@ -264,7 +266,8 @@
     </div>
     <footer class="foot">DhakaPath · INIF 2026 prototype · the network graph decides routes, fares and alert status; AI only reads messages and phrases explanations · <button type="button" class="linkish" id="ground-test">Test AI hallucination</button></footer>
   </section>
-  <section class="map-col" aria-label="Map">
+  <div class="splitter" id="splitter" role="separator" aria-orientation="vertical" aria-controls="main" aria-label="Resize the planner and the map: drag, or use the arrow keys" tabindex="0" title="Drag to resize (double-click to reset)"></div>
+  <section class="map-col" id="map-col" aria-label="Map">
     <div class="map-card">
       <div class="map-toolbar">
         <div class="pref-btn-group" role="group" aria-label="Route shown on the map">
