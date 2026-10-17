@@ -376,6 +376,10 @@ How to re-run the browser checks: `tools/browser-checks/README.md`.
 - Saved state is a local JSON file; on hosts with an ephemeral disk (e.g. Render free tier) it resets on redeploy.
 - Bonus 1 (signboard OCR) was not built.
 
+## Deploy on Render
+
+`render.yaml` is a Render Blueprint: in the Render dashboard choose **New → Blueprint**, pick this repository and press **Apply**. It creates one free Node web service that runs `npm start` (no build step), checks `/api/health`, generates an `ADMIN_PASSWORD` (shown under the service's *Environment*), and leaves `GEMINI_API_KEY` / `GROQ_API_KEY` for you to fill in if you want live AI. Without a key the app runs on the rule-based parser. Render provides `PORT`. On the free plan the disk is temporary and the service sleeps when idle: saved alerts, fare reports and admin edits reset on each deploy or restart, and the first visit after a sleep takes a little longer.
+
 ## Deploy / push to GitHub
 
 ```bash
